@@ -1,0 +1,6 @@
+/* Shared design-system tokens (imported by consuming apps if desired). */
+:root {
+  --brand-fg: #171717;
+  --brand-bg: #ffffff;
+  --brand-accent: #171717;
+}

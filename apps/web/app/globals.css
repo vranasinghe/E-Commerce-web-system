@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-neutral-900 antialiased;
+}
+
+/* ── Admin dark/light theme transition ─────────────────────── */
+/* Applied to all elements inside .dark wrapper for smooth switching */
+.dark *,
+.dark *::before,
+.dark *::after {
+  transition-property: background-color, border-color, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+/* Don't transition things that shouldn't animate */
+.dark svg,
+.dark img,
+.dark video {
+  transition: none;
+}
+
+/* ── Site layout ──────────────────────────────────────────── */
+/* Default page wrapper — provides padding for interior pages */
+.site-main {
+  min-height: 70vh;
+}
+
+/* Pages that need constrained content use this inner wrapper */
+.page-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Full-bleed break-out: used by the hero to escape any wrapper */
+.bleed-full {
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  width: 100vw;
+}
+
+/* ---- Home page motion ---- */
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered entrance for the active hero slide's text. */
+.hero-anim > * {
+  opacity: 0;
+  animation: hero-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-anim > *:nth-child(1) { animation-delay: 0.05s; }
+.hero-anim > *:nth-child(2) { animation-delay: 0.15s; }
+.hero-anim > *:nth-child(3) { animation-delay: 0.25s; }
+.hero-anim > *:nth-child(4) { animation-delay: 0.35s; }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+.marquee-pause:hover .animate-marquee {
+  animation-play-state: paused;
+}
