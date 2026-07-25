@@ -21,27 +21,24 @@ const SLIDES: Slide[] = [
     title: "Elegance Meets Everyday",
     description:
       "Discover curated women's styles from flowing dresses to tailored essentials — AI-styled just for you.",
-    image:
-      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=900&q=85",
-    bg: "#c4a0a0",
+    image: "/Hero page 02.jpg",
+    bg: "#dbcebf",
   },
   {
-    eyebrow: "Trending Women's Looks",
+    eyebrow: "Trending Looks",
     title: "New Season Essentials",
     description:
       "Shop pieces picked for the way you live — smart recommendations, worldwide shipping, styled by AI.",
-    image:
-      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=85",
-    bg: "#8a9b8e",
+    image: "/Hero page 01.jpg",
+    bg: "#d5a4a5",
   },
   {
-    eyebrow: "Men's Autumn Edit",
+    eyebrow: "Autumn Edit",
     title: "Sharper Every Day",
     description:
       "From weekday staples to statement layers — refresh your wardrobe with the season's best.",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=85",
-    bg: "#3c3c50",
+    image: "/Hero page 03.jpg",
+    bg: "#a8ada6",
   },
 ];
 
