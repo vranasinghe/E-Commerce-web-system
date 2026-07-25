@@ -73,7 +73,6 @@ const PRODUCT_IMAGES: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1555689502-c4b22d76c56f?w=800&q=80",
   ],
   "tapered-jogger": [
-    "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=800&q=80",
     "https://images.unsplash.com/photo-1594938374182-a57b3fd4eaf0?w=800&q=80",
     "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80",
   ],
@@ -103,7 +102,6 @@ const PRODUCT_IMAGES: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1495105787522-5334e3ffa0ef?w=800&q=80",
   ],
   "hooded-rain-shell": [
-    "https://images.unsplash.com/photo-1520975867742-b1751f754e2e?w=800&q=80",
     "https://images.unsplash.com/photo-1512327536842-5aa37d1ba3e3?w=800&q=80",
     "https://images.unsplash.com/photo-1547949003-9792a18a2601?w=800&q=80",
   ],
