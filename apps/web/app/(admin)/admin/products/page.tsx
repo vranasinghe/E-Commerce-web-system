@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { prisma } from "@repo/database";
 import { AddProductDropdown } from "@/components/AddProductDropdown";
+import { ProductActions } from "@/components/ProductActions";
 
 export const dynamic = "force-dynamic";
 
@@ -36,12 +37,13 @@ export default async function ProductsPage() {
               <th className="px-5 py-3">Variants</th>
               <th className="px-5 py-3">Stock</th>
               <th className="px-5 py-3 text-right">Price</th>
+              <th className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={6} className="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
                   No products found. Start by adding one.
                 </td>
               </tr>
@@ -66,6 +68,9 @@ export default async function ProductsPage() {
                   <td className="px-5 py-3 text-gray-600 dark:text-gray-400">{p.variants.length}</td>
                   <td className="px-5 py-3 text-gray-600 dark:text-gray-400">{stock}</td>
                   <td className="px-5 py-3 text-right font-medium text-gray-800 dark:text-gray-200">{money(Number(p.basePrice))}</td>
+                  <td className="px-5 py-3 text-right">
+                    <ProductActions productId={p.id} />
+                  </td>
                 </tr>
               );
             })}
