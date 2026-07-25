@@ -10,7 +10,7 @@ export function ProductActions({ productId }: { productId: string }) {
   const router = useRouter();
 
   const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
+    if (window.confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
       startTransition(async () => {
         const res = await deleteProductAction(productId);
         if (res?.error) {
