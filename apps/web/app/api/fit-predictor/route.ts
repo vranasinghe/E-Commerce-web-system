@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL;
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,7 +20,9 @@ export async function POST(req: NextRequest) {
       fitPreference: fitPreference || "regular",
     };
 
-    const response = await fetch(`${API_URL}/api/ai/fit`, {
+    const targetUrl = AI_SERVICE_URL ? `${AI_SERVICE_URL}/api/fit` : `${API_URL}/api/ai/fit`;
+
+    const response = await fetch(targetUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

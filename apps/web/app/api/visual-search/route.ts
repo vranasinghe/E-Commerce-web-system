@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL;
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,8 +14,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ results: [] }, { status: 400 });
     }
 
-    // Forward the multipart form-data to Express Gateway
-    const response = await fetch(`${API_URL}/api/ai/search/visual`, {
+    const targetUrl = AI_SERVICE_URL ? `${AI_SERVICE_URL}/api/search/visual` : `${API_URL}/api/ai/search/visual`;
+
+    // Forward the multipart form-data to Express Gateway or directly to Python
+    const response = await fetch(targetUrl, {
       method: "POST",
       body: formData,
     });

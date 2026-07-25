@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL;
 
 export async function GET(
   _req: NextRequest,
@@ -10,7 +11,9 @@ export async function GET(
 ) {
   const { jobId } = params;
   try {
-    const response = await fetch(`${API_URL}/api/ai/tryon/result/${jobId}`);
+    const targetUrl = AI_SERVICE_URL ? `${AI_SERVICE_URL}/api/tryon/result/${jobId}` : `${API_URL}/api/ai/tryon/result/${jobId}`;
+    
+    const response = await fetch(targetUrl);
     if (!response.ok) {
       throw new Error(`Result fetch returned code ${response.status}`);
     }
