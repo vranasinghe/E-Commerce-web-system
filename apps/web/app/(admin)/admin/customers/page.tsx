@@ -24,7 +24,7 @@ export default async function CustomersPage() {
             </tr>
           </thead>
           <tbody>
-            {customers.map((c) => (
+            {customers.map((c: any) => (
               <tr key={c.id} className="border-t border-neutral-100">
                 <td className="px-5 py-3 font-medium">{c.name ?? "—"}</td>
                 <td className="px-5 py-3 text-neutral-600">{c.email}</td>
