@@ -1,144 +1,149 @@
-# AURA — AI-Powered Ecommerce Clothing Store
+# AURA — AI-Powered E-Commerce Clothing Store
 
-A full-stack, AI-powered clothing store built as a **Turborepo monorepo**. It ships
-a buyer storefront, an admin dashboard, a core Express API, and a dedicated AI
-microservice with four AI features: a Claude-powered shopping assistant,
-recommendations, visual search, and a size/fit predictor.
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Express-4.21-000000?style=for-the-badge&logo=express" alt="Express" />
+  <img src="https://img.shields.io/badge/FastAPI-Python_3.14-009688?style=for-the-badge&logo=fastapi" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Prisma-5.22-2D3748?style=for-the-badge&logo=prisma" alt="Prisma" />
+  <img src="https://img.shields.io/badge/Turborepo-2.3-EF4444?style=for-the-badge&logo=turborepo" alt="Turborepo" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript" />
+</p>
 
-> **Status:** This is the *foundation + core storefront* milestone. The monorepo,
-> database schema, seed data, and the buyer flow (browse → product → cart →
-> checkout) are fully working. The admin, core API, and AI microservice are
-> runnable and wired to real data; the AI features use graceful fallbacks so the
-> app runs before you add API keys and populate embeddings. See
-> [Build order](#build-order) for what's next.
+---
 
-## Tech stack
+## 🌟 Overview
 
-| Layer        | Tech                                                        |
-| ------------ | ---------------------------------------------------------- |
-| Frontend     | Next.js 14 (App Router) · TypeScript · Tailwind CSS         |
-| Backend      | Next.js API routes · Node.js + Express (core API)          |
-| Database     | PostgreSQL · Prisma ORM                                     |
-| Vector / AI  | pgvector (embeddings) · Anthropic Claude (`claude-opus-4-8`) · CLIP (image embeddings) |
-| Cache        | Redis                                                      |
-| Auth         | NextAuth.js / JWT *(scaffolded)*                            |
-| Payments     | Stripe (test mode) *(scaffolded)*                          |
-| Monorepo     | Turborepo                                                  |
+**AURA** is a modern, full-stack, AI-driven e-commerce platform built as a high-performance **Turborepo monorepo**. It includes a Next.js 14 buyer storefront, an admin management dashboard, an Express core backend API, and a dedicated Python FastAPI AI microservice with virtual try-on, Claude shopping assistant, visual search, and personalized size recommendation engines.
 
-## Repository layout
+---
+
+## ✨ Features & Highlights
+
+- **🛍️ Buyer Storefront (`apps/web`)**: Next.js 14 (App Router) with server/client components, interactive product catalog, quick view, cart drawer, wishlist, and checkout flows.
+- **⚙️ Admin Dashboard**: Manage catalog items, categories, inventory, customer orders, and promotional coupons.
+- **⚡ Core API Backend (`apps/api`)**: Node.js & Express server connected via Prisma ORM for high-throughput RESTful endpoints.
+- **🤖 Dedicated AI Service (`services/ai-service`)**:
+  - **Virtual Try-On**: Upload a selfie and garment photo for AI virtual fitting.
+  - **Claude Shopping Assistant**: Interactive AI assistant offering styling advice and order support.
+  - **Visual Search**: Upload images to match against catalog items.
+  - **Smart Recommendations**: Nearest-neighbor recommendations over product vectors.
+  - **Size & Fit Predictor**: Quiz-driven fit calculator based on body metrics.
+- **📦 Shared Workspaces (`packages/*`)**: Reusable UI component library (`@repo/ui`), Prisma database layer (`@repo/database`), and shared TypeScript interfaces (`@repo/types`).
+
+---
+
+## 🏗️ Architecture & Monorepo Structure
 
 ```
-ecommerce-ai-store/
-├── apps/
-│   ├── web/          # Buyer storefront (Next.js) — the runnable core
-│   ├── admin/        # Admin dashboard (Next.js)
-│   └── api/          # Core backend (Express + Prisma)
-├── services/
-│   └── ai-service/   # AI microservice (chatbot, reco, visual search, fit)
-│       └── jobs/     # reindex-embeddings.cron.ts
-├── packages/
-│   ├── database/     # Shared Prisma client + schema + seed
-│   ├── ui/           # Shared UI components
-│   └── types/        # Shared TypeScript types
-├── docker-compose.yml
-├── .env.example
-└── turbo.json
+E-Commerce-web-system/
+├── 📁 apps/
+│   ├── 📁 web/                # Buyer Storefront & Admin App (Next.js 14)
+│   └── 📁 api/                # Core Backend REST API (Express + Prisma)
+│
+├── 📁 services/
+│   └── 📁 ai-service/         # AI Microservice (Python FastAPI / Uvicorn)
+│
+├── 📁 packages/
+│   ├── 📁 database/           # Prisma Client, Schema, Migrations & Seeders
+│   ├── 📁 types/              # Shared TypeScript Type Declarations
+│   └── 📁 ui/                 # Shared React UI Component Library
+│
+├── 📁 .github/
+│   └── 📁 workflows/          # CI/CD Automated Build, Lint & Typecheck Pipeline
+│
+├── 📄 docker-compose.yml      # Local PostgreSQL (pgvector) & Redis containers
+├── 📄 .env.example            # Environment variables blueprint
+└── 📄 turbo.json              # Turborepo task pipeline orchestration
 ```
 
-## Prerequisites
+---
 
-- Node.js ≥ 18 and npm
-- Docker (for local Postgres + Redis)
+## 💻 Tech Stack
 
-## Setup
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | Next.js 14 (App Router), TypeScript, Tailwind CSS, Lucide Icons |
+| **Core API** | Node.js, Express, Prisma ORM, CORS, Express Rate Limit |
+| **AI Microservice** | Python 3, FastAPI, Uvicorn, Anthropic Claude API, PyTorch / CLIP |
+| **Database & Cache** | PostgreSQL, Prisma ORM, pgvector extension, Redis |
+| **Monorepo Build** | Turborepo, npm workspaces |
 
-```bash
-# 1. Install dependencies (from the repo root)
-npm install
+---
 
-# 2. Configure environment
-cp .env.example .env
-#   → set ANTHROPIC_API_KEY to enable the live chatbot (optional; falls back otherwise)
+## 🚀 Quick Start Guide
 
-# 3. Start Postgres (pgvector) + Redis
-docker compose up -d
+### Prerequisites
+- **Node.js**: `≥ 18.0.0`
+- **npm**: `≥ 10.0.0`
+- **Python**: `≥ 3.10`
+- **Docker**: (Optional, for local PostgreSQL + Redis)
 
-# 4. Create the schema and generate the Prisma client
-npm run db:migrate      # or: npm run db:generate && npx prisma db push -w @repo/database
-npm run db:seed         # ~20 products across 4 categories, an admin + a customer
+### Installation & Setup
 
-# 5. Run everything (Turborepo)
-npm run dev
-```
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/vranasinghe/E-Commerce-web-system.git
+   cd E-Commerce-web-system
+   ```
 
-Then open:
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-| App          | URL                     |
-| ------------ | ----------------------- |
-| Storefront   | http://localhost:3000   |
-| Admin        | http://localhost:3001   |
-| Core API     | http://localhost:4000   |
-| AI service   | http://localhost:4100   |
+3. **Configure Environment Variables**
+   ```bash
+   cp .env.example .env
+   ```
 
-Run a single app instead of all of them:
+4. **Initialize Database & Seed Sample Data**
+   ```bash
+   npm run db:generate
+   npm run db:seed
+   ```
 
-```bash
-npm run dev --workspace=web
-```
+5. **Start All Services in Development Mode**
+   ```bash
+   npm run dev
+   ```
 
-### Seed accounts
+---
 
-| Role     | Email              | Password  |
-| -------- | ------------------ | --------- |
-| Admin    | admin@store.dev    | admin123  |
-| Customer | shopper@store.dev  | shop123   |
+## 🌐 Local Service Endpoints
 
-*(Passwords are demo-only hashes; real auth via NextAuth is scaffolded, not enforced.)*
+Once `npm run dev` is running, access the services at:
 
-## The 4 AI features
+| Application / Service | URL | Description |
+| :--- | :--- | :--- |
+| **Buyer Storefront** | [http://localhost:3002](http://localhost:3002) | Next.js Storefront App |
+| **Core REST API** | [http://localhost:4000](http://localhost:4000) | Express Backend Server |
+| **AI Microservice** | [http://localhost:4100](http://localhost:4100) | FastAPI Python AI Service |
 
-1. **Shopping assistant (chatbot)** — floating widget on the storefront. Calls
-   `POST /api/chatbot`, which uses Claude (`claude-opus-4-8`) with a system prompt
-   scoped to product Q&A, styling advice, and order lookups, plus live catalog
-   context. Falls back to a canned reply if `ANTHROPIC_API_KEY` is unset.
-2. **Recommendations** — "You may also like" carousel on product pages
-   (`GET /api/recommendations`). Production uses pgvector nearest-neighbour over
-   text embeddings; the current fallback ranks by category/brand + price proximity.
-3. **Visual search** — upload a photo at `/visual-search`. Production runs CLIP
-   image embeddings and queries pgvector; the current fallback returns sampled
-   matches so the flow is demoable.
-4. **Size & fit predictor** — the `/fit-finder` quiz (`POST /api/fit-predictor`)
-   maps height/weight/fit preference to a recommended size via a rules+scoring model.
+---
 
-The `ai-service` mirrors these as standalone endpoints and includes
-`jobs/reindex-embeddings.cron.ts` for the embeddings pipeline.
+## 🔐 Seed Accounts (Demo)
 
-## Useful scripts
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Customer** | `shopper@store.dev` | `shop123` |
+| **Admin** | `admin@store.dev` | `admin123` |
 
-```bash
-npm run dev          # run all apps via Turborepo
-npm run build        # build everything
-npm run db:studio    # open Prisma Studio
-npm run db:seed      # reseed sample data
-npm run reindex --workspace=ai-service   # (re)compute product embeddings (stubbed persistence)
-```
+---
 
-## Build order
+## 📜 NPM Scripts Reference
 
-- [x] Monorepo + Prisma schema + seed data
-- [x] Core storefront (browse, product detail, cart, checkout)
-- [x] Admin dashboard (products, orders, customers, marketing)
-- [x] AI chatbot (Claude) — with fallback
-- [~] AI recommendations — heuristic fallback in place; wire pgvector + embeddings job
-- [~] AI visual search — mock results; wire CLIP + pgvector
-- [~] AI fit predictor — rules model in place; blend order-history data
-- [ ] NextAuth (email + Google) enforcement
-- [ ] Stripe Elements + webhook finalisation
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Launches all apps and microservices simultaneously via Turborepo |
+| `npm run build` | Builds all packages, TypeScript types, and applications |
+| `npm run lint` | Runs ESLint checks across all workspace projects |
+| `npm run typecheck` | Validates TypeScript type safety across all workspaces |
+| `npm run db:seed` | Seeds database with products, categories, coupons, and test accounts |
+| `npm run db:studio` | Opens Prisma Studio GUI for database management |
 
-## Notes
+---
 
-- Product images use `picsum.photos` placeholders (configured in each app's
-  `next.config.mjs`). Swap for Cloudinary/S3 in production.
-- The `ProductEmbedding` model stores pgvector columns as Prisma
-  `Unsupported("vector(...)")`; read/write them with raw SQL (see the reindex job).
-```
+## 📄 License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
