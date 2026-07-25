@@ -3,11 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL;
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const response = await fetch(`${API_URL}/api/ai/chat`, {
+    
+    // If user added AI_SERVICE_URL to Vercel, connect directly to Python AI Service
+    // Bypassing the Node.js backend proxy which might be misconfigured
+    const targetUrl = AI_SERVICE_URL ? `${AI_SERVICE_URL}/api/chat` : `${API_URL}/api/ai/chat`;
+    
+    const response = await fetch(targetUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
