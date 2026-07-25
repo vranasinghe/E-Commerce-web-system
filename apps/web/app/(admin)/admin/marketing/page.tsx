@@ -28,7 +28,7 @@ export default async function MarketingPage() {
             </tr>
           </thead>
           <tbody>
-            {coupons.map((c) => (
+            {coupons.map((c: any) => (
               <tr key={c.id} className="border-t border-neutral-100">
                 <td className="px-5 py-3 font-mono font-medium">{c.code}</td>
                 <td className="px-5 py-3 text-neutral-600">{c.description ?? "—"}</td>
