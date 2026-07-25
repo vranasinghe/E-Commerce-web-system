@@ -57,6 +57,13 @@ E-Commerce-web-system/
 └── 📄 turbo.json              # Turborepo task pipeline orchestration
 ```
 
+### 🔄 System Data Flow
+- **Client ↔️ Frontend (Vercel)**: Users interact with the Next.js `apps/web` application.
+- **Frontend ↔️ Core Backend (Render)**: For standard e-commerce operations (cart, checkout, product fetching), the Next.js frontend calls the Node.js `apps/api` Express server.
+- **Frontend ↔️ Database (Neon)**: Next.js Server Actions communicate directly with the Postgres database via Prisma (with `pgbouncer=true` connection pooling) for optimized admin mutations.
+- **Frontend ↔️ AI Microservice (Render)**: For AI features (Chatbot, Virtual Try-On, Fit Predictor), the Next.js frontend bypasses the Core API and communicates *directly* with the Python FastAPI `services/ai-service` to minimize latency.
+- **AI Microservice ↔️ LLMs (Groq/Anthropic)**: The Python service handles heavy computations and interfaces directly with external AI LLM providers.
+
 ---
 
 ## 💻 Tech Stack
