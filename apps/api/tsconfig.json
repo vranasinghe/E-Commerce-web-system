@@ -5,12 +5,7 @@
     "moduleResolution": "Node",
     "outDir": "dist",
     "rootDir": "src",
-    "lib": ["ES2022"],
-    "baseUrl": ".",
-    "paths": {
-      "@repo/database": ["../../packages/database/dist/src/index.d.ts"],
-      "@repo/types": ["../../packages/types/dist/src/index.d.ts"]
-    }
+    "lib": ["ES2022"]
   },
   "include": ["src/**/*.ts"]
 }
