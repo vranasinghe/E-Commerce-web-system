@@ -21,7 +21,7 @@ const SLIDES: Slide[] = [
     title: "Elegance Meets Everyday",
     description:
       "Discover curated women's styles from flowing dresses to tailored essentials — AI-styled just for you.",
-    image: "/Hero page 02.jpg",
+    image: "/Hero page 02.png",
     bg: "#dbcebf",
   },
   {
@@ -29,7 +29,7 @@ const SLIDES: Slide[] = [
     title: "New Season Essentials",
     description:
       "Shop pieces picked for the way you live — smart recommendations, worldwide shipping, styled by AI.",
-    image: "/Hero page 01.jpg",
+    image: "/Hero page 01.png",
     bg: "#d5a4a5",
   },
   {
@@ -37,7 +37,7 @@ const SLIDES: Slide[] = [
     title: "Sharper Every Day",
     description:
       "From weekday staples to statement layers — refresh your wardrobe with the season's best.",
-    image: "/Hero page 03.jpg",
+    image: "/Hero page 03.png",
     bg: "#a8ada6",
   },
 ];
