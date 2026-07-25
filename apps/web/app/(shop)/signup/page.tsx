@@ -4,7 +4,8 @@ import { useFormState, useFormStatus } from "react-dom";
 import { signupAction } from "@/app/actions/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { Loader2 } from "lucide-react";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -21,7 +22,7 @@ function SubmitButton() {
   );
 }
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || "/";
@@ -198,5 +199,17 @@ export default function SignupPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }

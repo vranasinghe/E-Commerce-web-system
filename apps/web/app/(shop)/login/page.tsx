@@ -4,7 +4,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { loginAction } from "@/app/actions/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Mail, Lock, Eye, EyeOff, Loader2, ShieldCheck, ShoppingBag, ArrowRight } from "lucide-react";
 
 function SubmitButton() {
@@ -31,7 +31,7 @@ function SubmitButton() {
   );
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || null;
@@ -186,5 +186,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
