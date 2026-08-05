@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 export function ProductGallery({
   images,
@@ -13,77 +13,97 @@ export function ProductGallery({
 }) {
   const safe = images.length ? images : ["/images/products/placeholder.svg"];
   const [active, setActive] = useState(0);
+  const [thumbStart, setThumbStart] = useState(0);
 
-  function prev() {
-    setActive((a) => (a - 1 + safe.length) % safe.length);
-  }
-  function next() {
-    setActive((a) => (a + 1) % safe.length);
+  const VISIBLE_THUMBS = 4;
+  const canScrollUp = thumbStart > 0;
+  const canScrollDown = thumbStart + VISIBLE_THUMBS < safe.length;
+
+  function scrollUp() {
+    setThumbStart((s) => Math.max(0, s - 1));
   }
 
-  // Show up to 3 visible thumbnails in top row
-  const thumbs = safe.slice(0, Math.min(safe.length, 3));
+  function scrollDown() {
+    setThumbStart((s) =>
+      Math.min(safe.length - VISIBLE_THUMBS, s + 1)
+    );
+  }
+
+  const visibleThumbs = safe.slice(thumbStart, thumbStart + VISIBLE_THUMBS);
 
   return (
-    <div className="space-y-3">
-      {/* Main image row — 3 thumbnails side by side with prev/next */}
-      <div className="relative flex gap-2">
-        {/* Prev arrow */}
+    <div className="flex gap-3 w-full" style={{ height: "520px" }}>
+      {/* Left: vertical thumbnail strip */}
+      <div className="flex flex-col items-center gap-2 w-[120px] flex-shrink-0">
+        {/* Scroll up button */}
         <button
-          onClick={prev}
-          aria-label="Previous image"
-          className="absolute left-0 top-1/2 z-10 -translate-y-1/2 -translate-x-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow border border-gray-200 hover:bg-gray-50 transition"
+          onClick={scrollUp}
+          disabled={!canScrollUp}
+          aria-label="Scroll thumbnails up"
+          className={`flex h-7 w-full items-center justify-center rounded border transition ${
+            canScrollUp
+              ? "border-gray-300 hover:bg-gray-100 text-gray-600"
+              : "border-transparent text-gray-300 cursor-default"
+          }`}
         >
-          <ChevronLeft className="h-4 w-4 text-gray-600" />
+          <ChevronUp className="h-4 w-4" />
         </button>
 
-        {/* Show 3 images */}
-        <div className="flex flex-1 gap-2 overflow-hidden">
-          {thumbs.map((src, i) => (
-            <button
-              key={src}
-              onClick={() => setActive(i)}
-              className={`relative flex-1 overflow-hidden rounded-md border-2 transition ${
-                i === active ? "border-pink-500" : "border-transparent"
-              }`}
-              style={{ aspectRatio: "4/5" }}
-            >
-              <Image
-                src={src}
-                alt={`${alt} ${i + 1}`}
-                fill
-                className="object-cover"
-                sizes="33vw"
-              />
-            </button>
-          ))}
+        {/* Thumbnails */}
+        <div className="flex flex-col gap-2 flex-1 w-full overflow-hidden">
+          {visibleThumbs.map((src, i) => {
+            const realIndex = thumbStart + i;
+            const thumbSrc = src || "/images/products/placeholder.svg";
+            return (
+              <button
+                key={thumbSrc + realIndex}
+                onClick={() => setActive(realIndex)}
+                className={`relative w-full rounded-md overflow-hidden border-2 transition flex-1 ${
+                  realIndex === active
+                    ? "border-gray-800 shadow-md"
+                    : "border-gray-200 hover:border-gray-400"
+                }`}
+              >
+                <Image
+                  src={thumbSrc}
+                  alt={`${alt} thumbnail ${realIndex + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="120px"
+                  unoptimized
+                />
+              </button>
+            );
+          })}
         </div>
 
-        {/* Next arrow */}
+        {/* Scroll down button */}
         <button
-          onClick={next}
-          aria-label="Next image"
-          className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow border border-gray-200 hover:bg-gray-50 transition"
+          onClick={scrollDown}
+          disabled={!canScrollDown}
+          aria-label="Scroll thumbnails down"
+          className={`flex h-7 w-full items-center justify-center rounded border transition ${
+            canScrollDown
+              ? "border-gray-300 hover:bg-gray-100 text-gray-600"
+              : "border-transparent text-gray-300 cursor-default"
+          }`}
         >
-          <ChevronRight className="h-4 w-4 text-gray-600" />
+          <ChevronDown className="h-4 w-4" />
         </button>
       </div>
 
-      {/* Dot indicators */}
-      {safe.length > 1 && (
-        <div className="flex justify-center gap-1.5 pt-1">
-          {safe.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActive(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === active ? "w-4 bg-pink-500" : "w-1.5 bg-gray-300"
-              }`}
-              aria-label={`Image ${i + 1}`}
-            />
-          ))}
-        </div>
-      )}
+      {/* Right: large main image */}
+      <div className="relative flex-1 rounded-xl overflow-hidden bg-gray-50">
+        <Image
+          src={safe[active] ?? "/images/products/placeholder.svg"}
+          alt={alt}
+          fill
+          className="object-cover object-top"
+          sizes="(max-width: 768px) 100vw, 60vw"
+          priority
+          unoptimized
+        />
+      </div>
     </div>
   );
 }
