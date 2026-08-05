@@ -11,7 +11,7 @@ export function ProductGallery({
   images: string[];
   alt: string;
 }) {
-  const safe = images.length ? images : ["https://picsum.photos/seed/ph/800/1000"];
+  const safe = images.length ? images : ["/images/products/placeholder.svg"];
   const [active, setActive] = useState(0);
 
   function prev() {

@@ -1,46 +1,34 @@
-"use server";
-
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@repo/database";
-import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth";
 
-export async function deleteProductAction(id: string) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const session = await getSession();
-    if (!session || (session.role !== "ADMIN" && session.role !== "STAFF")) {
-      return { error: "Unauthorized" };
-    }
-
-    await prisma.product.delete({
-      where: { id },
+    const product = await prisma.product.findUnique({
+      where: { id: params.id },
+      include: { category: true, variants: true },
     });
 
-    revalidatePath("/admin/products");
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to delete product:", error);
-    return { error: "Failed to delete product" };
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ product });
+  } catch (err: unknown) {
+    console.error("Fetch product error:", err);
+    return NextResponse.json({ error: "Failed to fetch product" }, { status: 500 });
   }
 }
 
-export async function updateProductAction(id: string, data: {
-  name: string;
-  description: string;
-  gender: string;
-  categorySlug: string;
-  basePrice: string;
-  sizes: string[];
-  colors: string[];
-  featured: boolean;
-  images: string[];
-  brand?: string;
-}) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const session = await getSession();
-    if (!session || (session.role !== "ADMIN" && session.role !== "STAFF")) {
-      return { error: "Unauthorized" };
-    }
-
+    const productId = params.id;
+    const body = await req.json();
     const {
       name,
       description,
@@ -52,21 +40,23 @@ export async function updateProductAction(id: string, data: {
       featured,
       images,
       brand,
-    } = data;
+    } = body;
 
     if (!name || !description || !gender || !categorySlug || !basePrice) {
-      return { error: "Missing required fields" };
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Check if product exists
     const existingProduct = await prisma.product.findUnique({
-      where: { id },
+      where: { id: productId },
       include: { variants: true },
     });
 
     if (!existingProduct) {
-      return { error: "Product not found" };
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
+    // Find or create category
     let category = await prisma.category.findFirst({
       where: { slug: categorySlug },
     });
@@ -85,8 +75,9 @@ export async function updateProductAction(id: string, data: {
 
     const priceNum = parseFloat(basePrice);
 
+    // Update Product record
     const updatedProduct = await prisma.product.update({
-      where: { id },
+      where: { id: productId },
       data: {
         name: name.trim(),
         description: description.trim(),
@@ -99,9 +90,11 @@ export async function updateProductAction(id: string, data: {
       },
     });
 
+    // Handle variants: selected sizes x colors
     const sizeList: string[] = sizes?.length ? sizes : ["M"];
     const colorList: string[] = colors?.length ? colors : ["Default"];
 
+    // Build combination list of required (size, color)
     const activeCombinations = new Set<string>();
     for (const size of sizeList) {
       for (const color of colorList) {
@@ -113,7 +106,7 @@ export async function updateProductAction(id: string, data: {
         await prisma.productVariant.upsert({
           where: {
             productId_size_color: {
-              productId: id,
+              productId: productId,
               size,
               color,
             },
@@ -122,7 +115,7 @@ export async function updateProductAction(id: string, data: {
             price: priceNum,
           },
           create: {
-            productId: id,
+            productId: productId,
             sku,
             size,
             color,
@@ -133,6 +126,7 @@ export async function updateProductAction(id: string, data: {
       }
     }
 
+    // Optionally delete variants no longer in active combinations (if safe)
     for (const variant of existingProduct.variants) {
       const comboKey = `${variant.size}:${variant.color}`;
       if (!activeCombinations.has(comboKey)) {
@@ -141,16 +135,15 @@ export async function updateProductAction(id: string, data: {
             where: { id: variant.id },
           });
         } catch {
-          // Ignore delete error if linked to orders
+          // Ignore delete error if variant is linked to orders/cart
         }
       }
     }
 
-    revalidatePath("/admin/products");
-    return { success: true, product: updatedProduct };
-  } catch (error) {
-    console.error("Failed to update product:", error);
-    return { error: "Failed to update product" };
+    return NextResponse.json({ success: true, product: updatedProduct });
+  } catch (err: unknown) {
+    console.error("Update product error:", err);
+    const message = err instanceof Error ? err.message : "Failed to update product";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

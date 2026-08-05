@@ -145,7 +145,7 @@ export default async function ProductPage({
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3">
             {related.map((p) => {
-              const img = p.images[0] ?? "https://picsum.photos/seed/placeholder/800/1000";
+              const img = p.images[0] ?? "/images/products/placeholder.svg";
               const price = toNumber(p.basePrice);
               const origPrice = price * 1.2;
               return (

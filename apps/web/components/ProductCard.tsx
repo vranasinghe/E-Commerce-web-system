@@ -12,7 +12,7 @@ export interface ProductCardData {
 }
 
 export function ProductCard({ product }: { product: ProductCardData }) {
-  const image = product.images[0] ?? "https://picsum.photos/seed/placeholder/800/1000";
+  const image = product.images[0] ?? "/images/products/placeholder.svg";
   return (
     <Link href={`/product/${product.slug}`} className="group block">
       <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-neutral-100">

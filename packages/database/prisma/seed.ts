@@ -9,114 +9,93 @@ function fakeHash(password: string) {
 
 const SIZES = ["XS", "S", "M", "L", "XL"];
 
-// ── Real Unsplash clothing images per product ────────────────────────────────
-// Using stable Unsplash source URLs (free, no API key needed)
+// ── Local project clothing images per product ────────────────────────────────
 const PRODUCT_IMAGES: Record<string, string[]> = {
   "classic-cotton-tee": [
-    "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80",
-    "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80",
-    "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&q=80",
+    "/images/products/classic-cotton-tee.svg",
+    "/images/products/placeholder.svg",
   ],
   "ribbed-knit-top": [
-    "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=800&q=80",
-    "https://images.unsplash.com/photo-1554568218-0f1715e72254?w=800&q=80",
-    "https://images.unsplash.com/photo-1532453288672-3a54b975c54e?w=800&q=80",
+    "/images/products/ribbed-knit-top.svg",
+    "/images/products/placeholder.svg",
   ],
   "oversized-boxy-tee": [
-    "https://images.unsplash.com/photo-1503342394128-c104d54dba01?w=800&q=80",
-    "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&q=80",
-    "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80",
+    "/images/products/oversized-boxy-tee.svg",
+    "/images/products/placeholder.svg",
   ],
   "silk-camisole": [
-    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
-    "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=800&q=80",
-    "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=800&q=80",
+    "/images/products/silk-camisole.svg",
+    "/images/products/placeholder.svg",
   ],
   "linen-button-shirt": [
-    "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800&q=80",
-    "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=800&q=80",
-    "https://images.unsplash.com/photo-1594938298603-3d5ea58e26bb?w=800&q=80",
+    "/images/products/linen-button-shirt.svg",
+    "/images/products/placeholder.svg",
   ],
   "wrap-midi-dress": [
-    "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=80",
-    "https://images.unsplash.com/photo-1572804013427-4d7ca7268217?w=800&q=80",
-    "https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=800&q=80",
+    "/images/products/wrap-midi-dress.svg",
+    "/images/products/placeholder.svg",
   ],
   "slip-satin-dress": [
-    "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800&q=80",
-    "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80",
-    "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=800&q=80",
+    "/images/products/slip-satin-dress.svg",
+    "/images/products/placeholder.svg",
   ],
   "cotton-shirt-dress": [
-    "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=800&q=80",
-    "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=800&q=80",
-    "https://images.unsplash.com/photo-1551163943-3f7253a97eaa?w=800&q=80",
+    "/images/products/cotton-shirt-dress.svg",
+    "/images/products/placeholder.svg",
   ],
   "knit-sweater-dress": [
-    "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80",
-    "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?w=800&q=80",
-    "https://images.unsplash.com/photo-1548624313-0396c75e4b1a?w=800&q=80",
+    "/images/products/knit-sweater-dress.svg",
+    "/images/products/placeholder.svg",
   ],
   "floral-tea-dress": [
-    "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&q=80",
-    "https://images.unsplash.com/photo-1585232350029-3b5c3b43da1d?w=800&q=80",
-    "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=800&q=80",
+    "/images/products/floral-tea-dress.svg",
+    "/images/products/placeholder.svg",
   ],
   "slim-fit-chinos": [
-    "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&q=80",
-    "https://images.unsplash.com/photo-1548883354-94bcfe321cbb?w=800&q=80",
-    "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&q=80",
+    "/images/products/tapered-trousers.svg",
+    "/images/products/placeholder.svg",
   ],
   "straight-leg-jeans": [
-    "https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&q=80",
-    "https://images.unsplash.com/photo-1604176354204-9268737828e4?w=800&q=80",
-    "https://images.unsplash.com/photo-1555689502-c4b22d76c56f?w=800&q=80",
+    "/images/products/slim-fit-jeans.svg",
+    "/images/products/placeholder.svg",
   ],
   "tapered-jogger": [
-    "https://images.unsplash.com/photo-1594938374182-a57b3fd4eaf0?w=800&q=80",
-    "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80",
+    "/images/products/wide-leg-trousers.svg",
+    "/images/products/placeholder.svg",
   ],
   "pleated-trouser": [
-    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
-    "https://images.unsplash.com/photo-1550246140-29f40b909e5a?w=800&q=80",
-    "https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?w=800&q=80",
+    "/images/products/pleated-midi-skirt.svg",
+    "/images/products/placeholder.svg",
   ],
   "cargo-shorts": [
-    "https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=800&q=80",
-    "https://images.unsplash.com/photo-1617952236317-0bd127407984?w=800&q=80",
-    "https://images.unsplash.com/photo-1582552938357-32b906df40cb?w=800&q=80",
+    "/images/products/linen-shorts.svg",
+    "/images/products/placeholder.svg",
   ],
   "quilted-bomber-jacket": [
-    "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80",
-    "https://images.unsplash.com/photo-1548126032-079a0fb0099d?w=800&q=80",
-    "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80",
+    "/images/products/wool-tailored-blazer.svg",
+    "/images/products/placeholder.svg",
   ],
   "wool-overcoat": [
-    "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=800&q=80",
-    "https://images.unsplash.com/photo-1539533018257-8e1d7afe9c73?w=800&q=80",
-    "https://images.unsplash.com/photo-1608234808654-2a8875faa7fd?w=800&q=80",
+    "/images/products/trench-coat.svg",
+    "/images/products/placeholder.svg",
   ],
   "denim-trucker-jacket": [
-    "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=800&q=80",
-    "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?w=800&q=80",
-    "https://images.unsplash.com/photo-1495105787522-5334e3ffa0ef?w=800&q=80",
+    "/images/products/denim-jacket.svg",
+    "/images/products/placeholder.svg",
   ],
   "hooded-rain-shell": [
-    "https://images.unsplash.com/photo-1512327536842-5aa37d1ba3e3?w=800&q=80",
-    "https://images.unsplash.com/photo-1547949003-9792a18a2601?w=800&q=80",
+    "/images/products/puffer-jacket.svg",
+    "/images/products/placeholder.svg",
   ],
   "shearling-trucker": [
-    "https://images.unsplash.com/photo-1548372290-8d01b6c8e78c?w=800&q=80",
-    "https://images.unsplash.com/photo-1519997218465-9e0a80b6aacf?w=800&q=80",
-    "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=800&q=80",
+    "/images/products/biker-leather-jacket.svg",
+    "/images/products/placeholder.svg",
   ],
 };
 
 function getImages(slug: string): string[] {
   return PRODUCT_IMAGES[slug] ?? [
-    `https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80`,
-    `https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80`,
-    `https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80`,
+    "/images/products/placeholder.svg",
   ];
 }
 

@@ -41,18 +41,18 @@ const SORT_OPTIONS = [
 
 // ─── Mock product data (shown when DB has no products) ───────────────────────
 const DEMO_PRODUCTS: Product[] = [
-  { id: "1", name: "Men Round Neck Pure Cotton T-shirt", slug: "men-cotton-tee",       basePrice: 80,  images: ["https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80"], gender: "men",   category: { name: "Tops",     slug: "tops"     } },
-  { id: "2", name: "Men Tapered Fit Flat-Front Trousers", slug: "men-trousers",        basePrice: 72,  images: ["https://images.unsplash.com/photo-1548883354-7622d03aca27?w=400&q=80"], gender: "men",   category: { name: "Bottoms",  slug: "bottoms"  } },
-  { id: "3", name: "Women Round Neck Cotton Top",         slug: "women-cotton-top",    basePrice: 36,  images: ["https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&q=80"], gender: "women", category: { name: "Tops",     slug: "tops"     } },
-  { id: "4", name: "Women Round Neck Cotton Top",         slug: "women-cotton-top-2",  basePrice: 30,  images: ["https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&q=80"], gender: "women", category: { name: "Tops",     slug: "tops"     } },
-  { id: "5", name: "Men Slim Fit Jeans",                  slug: "men-slim-jeans",      basePrice: 65,  images: ["https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&q=80"], gender: "men",   category: { name: "Bottoms",  slug: "bottoms"  } },
-  { id: "6", name: "Men Hooded Jacket",                   slug: "men-hooded-jacket",   basePrice: 110, images: ["https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=400&q=80"], gender: "men",   category: { name: "Outerwear",slug: "outerwear"} },
-  { id: "7", name: "Women Dotted Print Trousers",         slug: "women-dotted-trouser",basePrice: 45,  images: ["https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80"], gender: "women", category: { name: "Bottoms",  slug: "bottoms"  } },
-  { id: "8", name: "Kids Graphic Printed Vest",           slug: "kids-graphic-vest",   basePrice: 25,  images: ["https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=400&q=80"], gender: "kids",  category: { name: "Tops",     slug: "tops"     } },
-  { id: "9", name: "Women Floral Maxi Dress",             slug: "women-floral-dress",  basePrice: 95,  images: ["https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&q=80"], gender: "women", category: { name: "Dresses",  slug: "dresses"  } },
-  { id:"10", name: "Men Parka Winter Coat",               slug: "men-parka-coat",      basePrice: 150, images: ["https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=400&q=80"], gender: "men",   category: { name: "Outerwear",slug: "outerwear"} },
-  { id:"11", name: "Kids Colourblock Hoodie",             slug: "kids-hoodie",         basePrice: 38,  images: ["https://images.unsplash.com/photo-1519278409-1f56fdda7fe5?w=400&q=80"], gender: "kids",  category: { name: "Outerwear",slug: "outerwear"} },
-  { id:"12", name: "Women Ribbed Knit Sweater",           slug: "women-ribbed-sweater",basePrice: 78,  images: ["https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&q=80"], gender: "women", category: { name: "Tops",     slug: "tops"     } },
+  { id: "1", name: "Men Round Neck Pure Cotton T-shirt", slug: "classic-cotton-tee",   basePrice: 80,  images: ["/images/products/classic-cotton-tee.svg"], gender: "men",   category: { name: "Tops",     slug: "tops"     } },
+  { id: "2", name: "Men Tapered Fit Flat-Front Trousers", slug: "tapered-trousers",     basePrice: 72,  images: ["/images/products/tapered-trousers.svg"], gender: "men",   category: { name: "Bottoms",  slug: "bottoms"  } },
+  { id: "3", name: "Women Round Neck Cotton Top",         slug: "ribbed-knit-top",     basePrice: 36,  images: ["/images/products/ribbed-knit-top.svg"], gender: "women", category: { name: "Tops",     slug: "tops"     } },
+  { id: "4", name: "Women Silk Camisole",                 slug: "silk-camisole",        basePrice: 30,  images: ["/images/products/silk-camisole.svg"], gender: "women", category: { name: "Tops",     slug: "tops"     } },
+  { id: "5", name: "Men Slim Fit Jeans",                  slug: "slim-fit-jeans",      basePrice: 65,  images: ["/images/products/slim-fit-jeans.svg"], gender: "men",   category: { name: "Bottoms",  slug: "bottoms"  } },
+  { id: "6", name: "Men Denim Jacket",                    slug: "denim-jacket",        basePrice: 110, images: ["/images/products/denim-jacket.svg"], gender: "men",   category: { name: "Outerwear",slug: "outerwear"} },
+  { id: "7", name: "Women Pleated Midi Skirt",            slug: "pleated-midi-skirt",  basePrice: 45,  images: ["/images/products/pleated-midi-skirt.svg"], gender: "women", category: { name: "Bottoms",  slug: "bottoms"  } },
+  { id: "8", name: "Linen Shorts",                        slug: "linen-shorts",        basePrice: 25,  images: ["/images/products/linen-shorts.svg"], gender: "kids",  category: { name: "Bottoms",  slug: "bottoms"  } },
+  { id: "9", name: "Women Wrap Midi Dress",               slug: "wrap-midi-dress",     basePrice: 95,  images: ["/images/products/wrap-midi-dress.svg"], gender: "women", category: { name: "Dresses",  slug: "dresses"  } },
+  { id:"10", name: "Men Wool Tailored Blazer",            slug: "wool-tailored-blazer",basePrice: 150, images: ["/images/products/wool-tailored-blazer.svg"], gender: "men",   category: { name: "Outerwear",slug: "outerwear"} },
+  { id:"11", name: "Puffer Jacket",                       slug: "puffer-jacket",       basePrice: 138, images: ["/images/products/puffer-jacket.svg"], gender: "unisex",category: { name: "Outerwear",slug: "outerwear"} },
+  { id:"12", name: "Women Cotton Shirt Dress",            slug: "cotton-shirt-dress",  basePrice: 78,  images: ["/images/products/cotton-shirt-dress.svg"], gender: "women", category: { name: "Dresses",  slug: "dresses"  } },
 ];
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
