@@ -33,7 +33,7 @@ class ChatProviderTests(unittest.TestCase):
             {"role": "user", "content": "Something casual"},
         ])
         self.assertEqual(reply, "Try the Classic Cotton Tee.")
-        self.assertIn("gemini-3.8-flash:generateContent", post.call_args.args[0])
+        self.assertIn("gemini-3.5-flash-lite:generateContent", post.call_args.args[0])
         body = post.call_args.kwargs["json"]
         self.assertEqual([turn["role"] for turn in body["contents"]], ["user", "model", "user"])
         self.assertIn("Classic Cotton Tee", body["systemInstruction"]["parts"][0]["text"])
@@ -68,6 +68,46 @@ class ChatProviderTests(unittest.TestCase):
         })
         self.assertEqual(NLPChatService.chat([{"role": "user", "content": "Hello"}]), "Hello from Groq")
         self.assertIn("api.groq.com", post.call_args.args[0])
+
+    @patch("src.services.nlp_chat.httpx.post")
+    def test_overloaded_gemini_model_falls_back_to_second_model(self, post):
+        os.environ["GEMINI_API_KEY"] = "test-key"
+        req = httpx.Request("POST", "https://example.test")
+        post.side_effect = [
+            httpx.Response(503, request=req, json={"error": {"message": "overloaded"}}),
+            httpx.Response(200, request=req, json={"candidates": [{"content": {"parts": [{"text": "Fallback reply"}]}}]}),
+        ]
+        with contextlib.redirect_stdout(io.StringIO()):
+            reply = NLPChatService.chat([{"role": "user", "content": "Hi"}])
+        self.assertEqual(reply, "Fallback reply")
+        self.assertIn("gemini-2.5-flash-lite:generateContent", post.call_args.args[0])
+
+    @patch("src.services.nlp_chat.httpx.post")
+    def test_gemini_failure_falls_back_to_groq(self, post):
+        os.environ.update(GEMINI_API_KEY="test-key", GROQ_API_KEY="test-groq-key")
+        req = httpx.Request("POST", "https://example.test")
+        post.side_effect = [
+            httpx.Response(503, request=req, json={}),
+            httpx.Response(503, request=req, json={}),
+            httpx.Response(200, request=req, json={"choices": [{"message": {"content": "Groq rescue"}}]}),
+        ]
+        with contextlib.redirect_stdout(io.StringIO()):
+            reply = NLPChatService.chat([{"role": "user", "content": "Hi"}])
+        self.assertEqual(reply, "Groq rescue")
+        self.assertIn("api.groq.com", post.call_args.args[0])
+
+    @patch("src.services.nlp_chat.httpx.post")
+    def test_groq_error_is_logged_without_key(self, post):
+        os.environ["GROQ_API_KEY"] = "secret-groq-key"
+        post.return_value = httpx.Response(401, request=httpx.Request("POST", "https://example.test"),
+                                           json={"error": {"message": "Invalid API Key secret-groq-key"}})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            reply = NLPChatService.chat([{"role": "user", "content": "Hi"}])
+        self.assertIn("try again", reply)
+        self.assertIn("401", output.getvalue())
+        self.assertIn("Invalid API Key", output.getvalue())
+        self.assertNotIn("secret-groq-key", output.getvalue())
 
     @patch("src.services.nlp_chat.httpx.post")
     def test_missing_keys_and_empty_conversation_do_not_call_provider(self, post):

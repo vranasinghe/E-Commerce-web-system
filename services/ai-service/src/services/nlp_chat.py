@@ -19,6 +19,82 @@ and prices. When recommending a catalog item, include its exact provided product
 link using Markdown: [Product name](/product/product-slug). Use only the product
 URLs supplied in the catalog context; never invent a URL. Do not output HTML."""
 
+DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite"
+FALLBACK_GEMINI_MODEL = "gemini-2.5-flash-lite"
+BLOCKED_REPLY = "I couldn't answer that request. Please try asking about our clothing collection."
+
+
+def _safe_error_text(response: httpx.Response, secret: str) -> str:
+    """Short provider error message for logs, with the API key scrubbed."""
+    try:
+        detail = response.json().get("error", {})
+        text = detail.get("message", "") if isinstance(detail, dict) else str(detail)
+    except (ValueError, AttributeError):
+        text = response.text
+    return text[:300].replace(secret, "***") if secret else text[:300]
+
+
+def _gemini_reply(api_key, model, system_prompt, turns):
+    """Returns the reply text, or None when the request failed and another provider should be tried."""
+    try:
+        resp = httpx.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+            json={
+                "systemInstruction": {"parts": [{"text": system_prompt}]},
+                "contents": [
+                    {
+                        "role": "model" if turn["role"] == "assistant" else "user",
+                        "parts": [{"text": turn["content"]}],
+                    }
+                    for turn in turns
+                ],
+                "generationConfig": {"maxOutputTokens": 4096},
+            },
+            timeout=30.0,
+        )
+        resp.raise_for_status()
+        candidates = resp.json().get("candidates") or []
+        parts = candidates[0].get("content", {}).get("parts", []) if candidates else []
+        reply = "\n".join(
+            part["text"] for part in parts if part.get("text") and not part.get("thought")
+        ).strip()
+        # A successful but empty/blocked answer is final; don't retry elsewhere.
+        return reply or BLOCKED_REPLY
+    except httpx.HTTPStatusError as error:
+        # Log status only; never log the request headers or API key.
+        print(f"Gemini chat ({model}) failed with HTTP status:", error.response.status_code,
+              _safe_error_text(error.response, api_key))
+    except (httpx.RequestError, ValueError, TypeError, KeyError, IndexError) as error:
+        print(f"Gemini chat ({model}) failed:", type(error).__name__)
+    return None
+
+
+def _groq_reply(api_key, system_prompt, turns):
+    """Returns the reply text, or None when the request failed."""
+    model = os.getenv("GROQ_MODEL") or "llama-3.3-70b-versatile"
+    try:
+        resp = httpx.post(
+            GROQ_CHAT_URL,
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json={
+                "model": model,
+                "max_tokens": 700,
+                "messages": [{"role": "system", "content": system_prompt}] + turns,
+            },
+            timeout=30.0,
+        )
+        resp.raise_for_status()
+        reply_text = resp.json()["choices"][0]["message"]["content"]
+        return reply_text.strip() or "Sorry, I couldn't process that response."
+    except httpx.HTTPStatusError as error:
+        print(f"Groq chat ({model}) failed with HTTP status:", error.response.status_code,
+              _safe_error_text(error.response, api_key))
+    except (httpx.RequestError, ValueError, TypeError, KeyError, IndexError) as error:
+        print(f"Groq chat ({model}) failed:", type(error).__name__)
+    return None
+
+
 class NLPChatService:
     @staticmethod
     def chat(messages) -> str:
@@ -82,68 +158,28 @@ class NLPChatService:
         if not formatted_messages:
             return "What would you like help finding in our clothing collection?"
 
+        if not gemini_key and not groq_key:
+            return (
+                "Live styling advice is currently unavailable. "
+                "Try browsing our collections, or upload a photo to use Visual Search."
+            )
+
+        # Try each configured provider in turn so one overloaded model or a bad
+        # key does not take the whole assistant down.
         if gemini_key:
-            model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
-            try:
-                resp = httpx.post(
-                    f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-                    headers={"x-goog-api-key": gemini_key, "Content-Type": "application/json"},
-                    json={
-                        "systemInstruction": {"parts": [{"text": system_prompt}]},
-                        "contents": [
-                            {
-                                "role": "model" if turn["role"] == "assistant" else "user",
-                                "parts": [{"text": turn["content"]}],
-                            }
-                            for turn in formatted_messages
-                        ],
-                        "generationConfig": {"maxOutputTokens": 4096},
-                    },
-                    timeout=30.0,
-                )
-                resp.raise_for_status()
-                candidates = resp.json().get("candidates") or []
-                parts = candidates[0].get("content", {}).get("parts", []) if candidates else []
-                reply = "\n".join(
-                    part["text"] for part in parts if part.get("text") and not part.get("thought")
-                ).strip()
-                return reply or "I couldn't answer that request. Please try asking about our clothing collection."
-            except httpx.HTTPStatusError as error:
-                # Log status only; never log the request headers or API key.
-                print("Gemini chat request failed with HTTP status:", error.response.status_code)
-            except (httpx.RequestError, ValueError, TypeError, KeyError) as error:
-                print("Gemini chat request failed:", type(error).__name__)
-            return "I'm having trouble reaching the styling service right now. Please try again."
+            primary = os.getenv("GEMINI_MODEL") or DEFAULT_GEMINI_MODEL
+            fallback = os.getenv("GEMINI_FALLBACK_MODEL") or FALLBACK_GEMINI_MODEL
+            for model in dict.fromkeys([primary, fallback]):
+                reply = _gemini_reply(gemini_key, model, system_prompt, formatted_messages)
+                if reply is not None:
+                    return reply
 
         if groq_key:
-            try:
-                model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-                payload = {
-                    "model": model,
-                    "max_tokens": 700,
-                    "messages": [{"role": "system", "content": system_prompt}] + formatted_messages,
-                }
-                resp = httpx.post(
-                    GROQ_CHAT_URL,
-                    headers={
-                        "Authorization": f"Bearer {groq_key}",
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
-                    timeout=30.0,
-                )
-                resp.raise_for_status()
-                data = resp.json()
-                reply_text = data["choices"][0]["message"]["content"]
-                return reply_text.strip() or "Sorry, I couldn't process that response."
-            except Exception as e:
-                print("Groq Chat error:", e)
-                return "I'm having trouble reaching the styling service right now. Please try again."
+            reply = _groq_reply(groq_key, system_prompt, formatted_messages)
+            if reply is not None:
+                return reply
 
-        return (
-            "Live styling advice is currently unavailable. "
-            "Try browsing our collections, or upload a photo to use Visual Search."
-        )
+        return "I'm having trouble reaching the styling service right now. Please try again."
 
     @staticmethod
     def get_review_fit_summary(product_id: str) -> dict:
