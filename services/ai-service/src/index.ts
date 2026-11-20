@@ -2,8 +2,6 @@ import express from "express";
 import cors from "cors";
 import { handleChat } from "./chatbot/chatbot.controller";
 import { recommendForProduct } from "./recommendations/recommendation.engine";
-import { embedImage } from "./visual-search/image-embedding";
-import { searchByImageEmbedding } from "./visual-search/similarity-search";
 import { predictFit } from "./fit-predictor/fit-model";
 import type { FitInput } from "@repo/types";
 
@@ -29,18 +27,9 @@ app.get("/recommendations", async (req, res, next) => {
   }
 });
 
-// 3. AI Visual Search — accepts { imageBase64 } and returns ranked products
-app.post("/visual-search", async (req, res, next) => {
-  try {
-    const { imageBase64 } = req.body as { imageBase64?: string };
-    const bytes = imageBase64
-      ? Buffer.from(imageBase64.replace(/^data:image\/\w+;base64,/, ""), "base64")
-      : Buffer.alloc(0);
-    const embedding = await embedImage(bytes);
-    res.json({ results: await searchByImageEmbedding(embedding) });
-  } catch (err) {
-    next(err);
-  }
+// This legacy TypeScript server does not power the storefront's image search.
+app.post("/visual-search", (_req, res) => {
+  res.status(410).json({ error: "Image search is served by the Python AI service." });
 });
 
 // 4. AI Size & Fit Predictor

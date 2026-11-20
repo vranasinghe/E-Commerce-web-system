@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getStaffSession } from "@/lib/auth";
 import { prisma } from "@repo/database";
 
 export async function POST(req: NextRequest) {
+  const staff = await getStaffSession();
+  if (!staff) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const {

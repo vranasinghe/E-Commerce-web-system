@@ -31,7 +31,13 @@ export interface VisualSearchResult {
   slug: string;
   name: string;
   image: string;
-  similarity: number;
+  price: number;
+}
+
+export interface VisualSearchResponse {
+  category: { name: string; slug: string; parentName: string | null } | null;
+  description: string;
+  results: VisualSearchResult[];
 }
 
 export interface FitInput {

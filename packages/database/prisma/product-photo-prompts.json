@@ -1,0 +1,107 @@
+{
+  "generator": "Built-in image_gen",
+  "purpose": "Illustrative demo catalog photos, not physical stock photography",
+  "date": "2026-11-21",
+  "prompts": [
+    {
+      "slug": "classic-cotton-tee",
+      "file": "apps/web/public/images/products/classic-cotton-tee.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of a women's classic white cotton crew-neck short-sleeve T-shirt, soft combed cotton, regular fit. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition. No person, no hanger, no text, no logos. This is an illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "ribbed-knit-top",
+      "file": "apps/web/public/images/products/ribbed-knit-top.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's fitted ivory ribbed knit top with scoop neck and long sleeves. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "oversized-boxy-tee",
+      "file": "apps/web/public/images/products/oversized-boxy-tee.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's stone beige oversized boxy cotton T-shirt with drop shoulders, wide short sleeves. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "silk-camisole",
+      "file": "apps/web/public/images/products/silk-camisole.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's champagne silk camisole with thin adjustable straps and a V neckline. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "linen-button-shirt",
+      "file": "apps/web/public/images/products/linen-button-shirt.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's airy white linen button-front shirt with relaxed cut, collar and long sleeves. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "wrap-midi-dress",
+      "file": "apps/web/public/images/products/wrap-midi-dress.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's emerald green flowing wrap midi dress with V-neck, tie waist and mid-calf hem. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "slip-satin-dress",
+      "file": "apps/web/public/images/products/slip-satin-dress.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's blush pink bias-cut satin slip midi dress with thin adjustable shoulder straps. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "cotton-shirt-dress",
+      "file": "apps/web/public/images/products/cotton-shirt-dress.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's khaki cotton poplin shirt dress with collar, button front, belted waist and knee length. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "knit-sweater-dress",
+      "file": "apps/web/public/images/products/knit-sweater-dress.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's oatmeal ribbed knit sweater midi dress, long sleeves, cozy fitted silhouette. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "floral-tea-dress",
+      "file": "apps/web/public/images/products/floral-tea-dress.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of women's vintage-inspired cream tea dress with delicate meadow floral print, short sleeves and midi hem. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "slim-fit-chinos",
+      "file": "apps/web/public/images/products/slim-fit-chinos.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's navy blue stretch cotton chinos with a clean slim straight leg and slash pockets. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "straight-leg-jeans",
+      "file": "apps/web/public/images/products/straight-leg-jeans.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's indigo mid-wash rigid selvedge denim jeans with straight legs and five-pocket detailing. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "tapered-jogger",
+      "file": "apps/web/public/images/products/tapered-jogger.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's heather gray heavyweight fleece jogger pants with drawstring waistband and tapered ribbed ankle cuffs. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "pleated-trouser",
+      "file": "apps/web/public/images/products/pleated-trouser.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's charcoal wool blend tailored pleated trousers, visible front pleats, full length with crisp pressed crease. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "cargo-shorts",
+      "file": "apps/web/public/images/products/cargo-shorts.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's khaki ripstop cotton cargo shorts, knee length with large flap cargo pockets on both thighs. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "quilted-bomber-jacket",
+      "file": "apps/web/public/images/products/quilted-bomber-jacket.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's black lightweight diamond-quilted bomber jacket with front zipper, ribbed collar, cuffs and waistband. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "wool-overcoat",
+      "file": "apps/web/public/images/products/wool-overcoat.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's camel Italian wool single-breasted knee-length overcoat with notched lapels and three buttons. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "denim-trucker-jacket",
+      "file": "apps/web/public/images/products/denim-trucker-jacket.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's washed blue rigid denim trucker jacket, pointed collar, metal button front and flap chest pockets. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "hooded-rain-shell",
+      "file": "apps/web/public/images/products/hooded-rain-shell.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's slate gray lightweight waterproof hooded rain shell jacket, taped seams and front zipper, clearly visible hood. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    },
+    {
+      "slug": "shearling-trucker",
+      "file": "apps/web/public/images/products/shearling-trucker.webp",
+      "prompt": "Use case: product-mockup. Generate ONE photorealistic ecommerce catalog product photograph of men's indigo denim trucker jacket with visible cream faux shearling collar and warm shearling lining. Entire garment centered, front view, invisible mannequin, isolated warm light gray seamless studio backdrop, soft realistic shadow, clear fabric texture. Portrait 4:5 composition, generous consistent margins. No person, no hanger, no text, no logos, no collage. Illustrative demo product photograph for a clothing web store."
+    }
+  ]
+}

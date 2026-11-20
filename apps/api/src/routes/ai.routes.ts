@@ -75,7 +75,7 @@ aiRoutes.get("/tryon/result/:jobId", async (req, res) => {
       return res.status(response.status).json({ error: "Failed to fetch result from AI service" });
     }
     res.setHeader("Content-Type", "image/jpeg");
-    res.setHeader("Cache-Control", "public, max-age=31536000");
+    res.setHeader("Cache-Control", "private, no-store");
     const buffer = await response.arrayBuffer();
     res.send(Buffer.from(buffer));
   } catch (err: any) {

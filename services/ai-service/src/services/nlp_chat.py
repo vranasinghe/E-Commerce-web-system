@@ -1,5 +1,6 @@
 import os
 import httpx
+from urllib.parse import quote
 from src.services.db import execute_query
 
 GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -12,16 +13,21 @@ Help customers with:
 
 Be warm, concise, and practical. Pay close attention to whether the user is looking for Men's, Women's, or Kids' clothing, and tailor your recommendations accordingly. Recommend items from the catalog context when relevant,
 and refer to them by name. If you don't know something, say so and suggest browsing the site
-or using visual search. Never invent order details or prices."""
+or using visual search. Never invent order details or prices.
+Format responses with short paragraphs or bullet lists. Use **bold** for key names
+and prices. When recommending a catalog item, include its exact provided product
+link using Markdown: [Product name](/product/product-slug). Use only the product
+URLs supplied in the catalog context; never invent a URL. Do not output HTML."""
 
 class NLPChatService:
     @staticmethod
     def chat(messages) -> str:
         """
         Sends the chat turns to an LLM with live catalog context.
-        Uses Groq (GROQ_API_KEY) or falls back to a demo
-        message if not set.
+        Prefers Gemini (GEMINI_API_KEY), with Groq available when Gemini
+        is not configured. Uses demo mode if neither provider is set.
         """
+        gemini_key = os.getenv("GEMINI_API_KEY")
         groq_key = os.getenv("GROQ_API_KEY")
 
         # Determine context to filter by gender
@@ -36,7 +42,7 @@ class NLPChatService:
             target_gender = "men"
 
         query = (
-            'SELECT p.name, p.brand, p.gender, p."basePrice", c.name as category_name '
+            'SELECT p.name, p.slug, p.brand, p.gender, p."basePrice", c.name as category_name '
             'FROM "Product" p '
             'JOIN "Category" c ON p."categoryId" = c.id '
             'WHERE p.active = true '
@@ -58,7 +64,8 @@ class NLPChatService:
             for p in products:
                 brand_str = f" by {p['brand']}" if p['brand'] else ""
                 gender_str = f" ({p['gender']})" if p['gender'] else ""
-                catalog_lines.append(f"- {p['name']}{brand_str} ({p['category_name']}{gender_str}) ${float(p['basePrice']):.2f}")
+                product_link = f"/product/{quote(p['slug'], safe='')}"
+                catalog_lines.append(f"- [{p['name']}]({product_link}){brand_str} ({p['category_name']}{gender_str}) ${float(p['basePrice']):.2f}")
             catalog = "\n".join(catalog_lines)
         except Exception as e:
             print("DB error fetching catalog for chat context:", e)
@@ -68,7 +75,45 @@ class NLPChatService:
         formatted_messages = [
             {"role": m.get("role", "user").lower(), "content": m.get("content", "")}
             for m in messages
+            if m.get("role", "user").lower() in ("user", "assistant")
+            and m.get("content", "").strip()
         ]
+
+        if not formatted_messages:
+            return "What would you like help finding in our clothing collection?"
+
+        if gemini_key:
+            model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+            try:
+                resp = httpx.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                    headers={"x-goog-api-key": gemini_key, "Content-Type": "application/json"},
+                    json={
+                        "systemInstruction": {"parts": [{"text": system_prompt}]},
+                        "contents": [
+                            {
+                                "role": "model" if turn["role"] == "assistant" else "user",
+                                "parts": [{"text": turn["content"]}],
+                            }
+                            for turn in formatted_messages
+                        ],
+                        "generationConfig": {"maxOutputTokens": 4096},
+                    },
+                    timeout=30.0,
+                )
+                resp.raise_for_status()
+                candidates = resp.json().get("candidates") or []
+                parts = candidates[0].get("content", {}).get("parts", []) if candidates else []
+                reply = "\n".join(
+                    part["text"] for part in parts if part.get("text") and not part.get("thought")
+                ).strip()
+                return reply or "I couldn't answer that request. Please try asking about our clothing collection."
+            except httpx.HTTPStatusError as error:
+                # Log status only; never log the request headers or API key.
+                print("Gemini chat request failed with HTTP status:", error.response.status_code)
+            except (httpx.RequestError, ValueError, TypeError, KeyError) as error:
+                print("Gemini chat request failed:", type(error).__name__)
+            return "I'm having trouble reaching the styling service right now. Please try again."
 
         if groq_key:
             try:
@@ -96,9 +141,8 @@ class NLPChatService:
                 return "I'm having trouble reaching the styling service right now. Please try again."
 
         return (
-            "I'm the AURA assistant (Python AI Service demo mode — no GROQ_API_KEY set). "
-            "Try browsing our collections, or upload a photo to use Visual Search. "
-            "Add an API key to enable live AI styling advice."
+            "Live styling advice is currently unavailable. "
+            "Try browsing our collections, or upload a photo to use Visual Search."
         )
 
     @staticmethod

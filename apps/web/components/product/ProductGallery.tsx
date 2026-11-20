@@ -34,7 +34,7 @@ export function ProductGallery({
   return (
     <div className="flex gap-3 w-full" style={{ height: "520px" }}>
       {/* Left: vertical thumbnail strip */}
-      <div className="flex flex-col items-center gap-2 w-[120px] flex-shrink-0">
+      <div className="flex flex-col items-center gap-2 w-16 sm:w-[120px] flex-shrink-0">
         {/* Scroll up button */}
         <button
           onClick={scrollUp}
@@ -58,6 +58,8 @@ export function ProductGallery({
               <button
                 key={thumbSrc + realIndex}
                 onClick={() => setActive(realIndex)}
+                aria-label={`View ${alt} photo ${realIndex + 1}`}
+                aria-pressed={realIndex === active}
                 className={`relative w-full rounded-md overflow-hidden border-2 transition flex-1 ${
                   realIndex === active
                     ? "border-gray-800 shadow-md"
@@ -68,7 +70,7 @@ export function ProductGallery({
                   src={thumbSrc}
                   alt={`${alt} thumbnail ${realIndex + 1}`}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   sizes="120px"
                   unoptimized
                 />
@@ -98,7 +100,7 @@ export function ProductGallery({
           src={safe[active] ?? "/images/products/placeholder.svg"}
           alt={alt}
           fill
-          className="object-cover object-top"
+          className="object-contain"
           sizes="(max-width: 768px) 100vw, 60vw"
           priority
           unoptimized

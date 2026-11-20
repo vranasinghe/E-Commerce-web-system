@@ -75,8 +75,9 @@ export async function signupAction(_prevState: unknown, formData: FormData) {
   }
 
   if (role === "STAFF") {
-    const STAFF_INVITE_CODE = process.env.STAFF_INVITE_CODE || "STAFF-INVITE-2024";
-    if (inviteCode !== STAFF_INVITE_CODE) {
+    // No public fallback: staff sign-up is disabled until STAFF_INVITE_CODE is set.
+    const STAFF_INVITE_CODE = process.env.STAFF_INVITE_CODE;
+    if (!STAFF_INVITE_CODE || inviteCode !== STAFF_INVITE_CODE) {
       return { error: "Invalid staff invite code. Please contact your administrator." };
     }
   }

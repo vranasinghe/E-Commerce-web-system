@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getStaffSession } from "@/lib/auth";
 import { v2 as cloudinary } from "cloudinary";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
 export async function POST(req: NextRequest) {
+  const staff = await getStaffSession();
+  if (!staff) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;

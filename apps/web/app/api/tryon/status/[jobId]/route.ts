@@ -13,14 +13,11 @@ export async function GET(
   try {
     const targetUrl = AI_SERVICE_URL ? `${AI_SERVICE_URL}/api/tryon/status/${jobId}` : `${API_URL}/api/ai/tryon/status/${jobId}`;
     
-    const response = await fetch(targetUrl);
-    if (!response.ok) {
-      throw new Error(`Status check returned code ${response.status}`);
-    }
+    const response = await fetch(targetUrl, { cache: "no-store", signal: AbortSignal.timeout(10000) });
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, { status: response.status, headers: { "Cache-Control": "no-store" } });
   } catch (err: unknown) {
     console.error("Status check error:", err);
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json({ error: "The preview status could not be checked. Please try again." }, { status: 502 });
   }
 }

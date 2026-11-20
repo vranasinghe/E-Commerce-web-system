@@ -1,0 +1,15 @@
+{
+  "generator": "Built-in image_gen",
+  "date": "2026-11-21",
+  "referenceEditorial": "Existing clean source: /Hero page 03.png, matching the user's supplied screenshot. Re-encoded as reference-editorial.webp.",
+  "images": [
+    {
+      "file": "natural-women.webp",
+      "prompt": "Use case: photorealistic-natural. Asset: wide 16:9 fashion ecommerce hero background photograph, no typography. An attractive adult white European woman aged 27 with fair skin, long softly wavy blonde hair and blue eyes, wearing a relaxed white linen button-front shirt with long sleeves and tailored sand beige trousers, walking naturally in a sunlit Mediterranean courtyard with pale limestone, a weathered wooden door, and an olive tree. Candid warm smile looking slightly away, natural movement, realistic skin texture and fabric folds. Position her entirely in the RIGHT third of the wide image, three-quarter body with head and hands visible, leave the LEFT half mostly quiet pale textured limestone wall and softly blurred foliage for a website's text overlay. Soft morning daylight and gentle realistic shadows, cream, olive and warm sand palette. Authentic editorial photography, relaxed everyday elegance, no studio backdrop, no sitting on floor, no stool, no crop top, no text, no logos, no watermarks, no frame, no buttons. One adult person only. Different model from a brunette seated on a studio floor."
+    },
+    {
+      "file": "natural-men.webp",
+      "prompt": "Use case: photorealistic-natural. Asset: wide 16:9 fashion ecommerce hero background photograph, no typography. A handsome adult white European man aged 31 with fair skin, short textured dark blond hair, blue-gray eyes and neatly groomed light stubble, wearing a camel single-breasted wool overcoat over a charcoal crew-neck sweater with dark tailored trousers, strolling on a quiet historic city street in soft late-afternoon daylight. Natural easy expression and believable walking posture, one hand casually in coat pocket, real cloth texture. Place the model in the RIGHT third, full head and body down to knees visible, keep the LEFT half quiet and uncluttered with warm pale stone architecture softly blurred, room for website copy. Natural street-style editorial photography, warm ochre and charcoal palette, no studio setup, no floor pose, no props in foreground, no text, no logos, no watermark, no borders, no buttons. One adult person only."
+    }
+  ]
+}

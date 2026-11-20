@@ -8,6 +8,7 @@ import { useWishlist } from "@/lib/wishlist-context";
 import { useCompare } from "@/lib/compare-context";
 import { toNumber } from "@/lib/format";
 import { TryOnModal } from "@/components/ai/TryOnModal";
+import { TRYON_GARMENTS } from "@/lib/tryon-catalog";
 import { useRouter } from "next/navigation";
 
 export interface VariantData {
@@ -72,6 +73,7 @@ export function AddToCart({
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [tryOnOpen, setTryOnOpen] = useState(false);
+  const tryOnGarment = TRYON_GARMENTS[slug];
 
   const { add: addToCart } = useCart();
   const { toggle: toggleWishlist, isWishlisted } = useWishlist();
@@ -196,7 +198,9 @@ export function AddToCart({
               <button
                 type="button"
                 onClick={() => setTryOnOpen(true)}
-                className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-900 font-medium"
+                disabled={!tryOnGarment}
+                title={tryOnGarment ? "Preview the sample top on your photo" : "Virtual try-on is available for selected tops only"}
+                className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-900 font-medium disabled:cursor-not-allowed disabled:text-neutral-400"
               >
                 <Sparkles className="h-3.5 w-3.5 text-indigo-500 fill-indigo-100" />
                 Virtual Try-On
@@ -209,6 +213,7 @@ export function AddToCart({
               </Link>
             </div>
           </div>
+          {!tryOnGarment && <p className="mb-2 text-xs text-neutral-500">Virtual try-on is available for selected tops only.</p>}
           <div className="flex flex-wrap gap-2">
             {sizes.map((sz) => {
               const disabled = stockFor(sz) === 0;
@@ -320,8 +325,9 @@ export function AddToCart({
 
       <TryOnModal
         productName={name}
-        garmentImage={image}
-        isOpen={tryOnOpen}
+        garmentImage={tryOnGarment?.image ?? ""}
+        garmentColor={tryOnGarment?.color ?? ""}
+        isOpen={tryOnOpen && Boolean(tryOnGarment)}
         onClose={() => setTryOnOpen(false)}
       />
     </div>

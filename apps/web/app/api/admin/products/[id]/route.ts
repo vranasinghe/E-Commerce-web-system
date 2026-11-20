@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getStaffSession } from "@/lib/auth";
 import { prisma } from "@repo/database";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const staff = await getStaffSession();
+  if (!staff) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const product = await prisma.product.findUnique({
       where: { id: params.id },
@@ -26,6 +32,11 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const staff = await getStaffSession();
+  if (!staff) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const productId = params.id;
     const body = await req.json();

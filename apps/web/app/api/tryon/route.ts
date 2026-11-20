@@ -21,16 +21,13 @@ export async function POST(req: NextRequest) {
     const response = await fetch(targetUrl, {
       method: "POST",
       body: formData,
+      signal: AbortSignal.timeout(15000),
     });
 
-    if (!response.ok) {
-      throw new Error(`Service returned status ${response.status}`);
-    }
-
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, { status: response.status, headers: { "Cache-Control": "no-store" } });
   } catch (err: unknown) {
     console.error("Tryon proxy error:", err);
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json({ error: "The try-on service could not be reached. Please try again." }, { status: 502 });
   }
 }

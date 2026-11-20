@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma, Role } from "@prisma/client";
 import { createHash } from "node:crypto";
+import { getImages } from "./product-images";
 
 const prisma = new PrismaClient();
 
@@ -8,96 +9,6 @@ function fakeHash(password: string) {
 }
 
 const SIZES = ["XS", "S", "M", "L", "XL"];
-
-// ── Local project clothing images per product ────────────────────────────────
-const PRODUCT_IMAGES: Record<string, string[]> = {
-  "classic-cotton-tee": [
-    "/images/products/classic-cotton-tee.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "ribbed-knit-top": [
-    "/images/products/ribbed-knit-top.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "oversized-boxy-tee": [
-    "/images/products/oversized-boxy-tee.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "silk-camisole": [
-    "/images/products/silk-camisole.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "linen-button-shirt": [
-    "/images/products/linen-button-shirt.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "wrap-midi-dress": [
-    "/images/products/wrap-midi-dress.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "slip-satin-dress": [
-    "/images/products/slip-satin-dress.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "cotton-shirt-dress": [
-    "/images/products/cotton-shirt-dress.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "knit-sweater-dress": [
-    "/images/products/knit-sweater-dress.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "floral-tea-dress": [
-    "/images/products/floral-tea-dress.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "slim-fit-chinos": [
-    "/images/products/tapered-trousers.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "straight-leg-jeans": [
-    "/images/products/slim-fit-jeans.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "tapered-jogger": [
-    "/images/products/wide-leg-trousers.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "pleated-trouser": [
-    "/images/products/pleated-midi-skirt.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "cargo-shorts": [
-    "/images/products/linen-shorts.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "quilted-bomber-jacket": [
-    "/images/products/wool-tailored-blazer.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "wool-overcoat": [
-    "/images/products/trench-coat.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "denim-trucker-jacket": [
-    "/images/products/denim-jacket.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "hooded-rain-shell": [
-    "/images/products/puffer-jacket.svg",
-    "/images/products/placeholder.svg",
-  ],
-  "shearling-trucker": [
-    "/images/products/biker-leather-jacket.svg",
-    "/images/products/placeholder.svg",
-  ],
-};
-
-function getImages(slug: string): string[] {
-  return PRODUCT_IMAGES[slug] ?? [
-    "/images/products/placeholder.svg",
-  ];
-}
 
 type SeedProduct = {
   name: string;
@@ -144,7 +55,7 @@ const PRODUCTS: SeedProduct[] = [
 ];
 
 async function main() {
-  console.log("🌱  Seeding database with real clothing images...");
+  console.log("🌱  Seeding database with matching demo product photos...");
 
   // Clean (order matters due to FKs)
   await prisma.orderItem.deleteMany();
@@ -251,7 +162,7 @@ async function main() {
       });
     }
   }
-  console.log(`   • products: ${PRODUCTS.length} (with real Unsplash clothing images)`);
+  console.log(`   • products: ${PRODUCTS.length} (with matching AI-generated demo photos)`);
 
   // Coupon
   await prisma.coupon.create({
@@ -276,3 +187,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

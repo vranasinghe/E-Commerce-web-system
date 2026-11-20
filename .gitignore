@@ -41,3 +41,4 @@ coverage
 .venv
 __pycache__
 *.pyc
+services/ai-service/.cache/

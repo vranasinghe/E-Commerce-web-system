@@ -1,12 +1,33 @@
 import { cookies } from "next/headers";
 
-const JWT_SECRET = process.env.JWT_SECRET || "super-secret-aura-key-value-123456789";
+// Dev-only fallback. In production JWT_SECRET must be set, otherwise anyone
+// could forge an admin token with the public fallback value.
+const DEV_JWT_SECRET = "dev-only-insecure-jwt-secret";
+const JWT_SECRET =
+  process.env.JWT_SECRET ||
+  (process.env.NODE_ENV === "production" ? "" : DEV_JWT_SECRET);
+
+function requireSecret(secret: string): string {
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is not set");
+  }
+  return secret;
+}
 
 export interface JWTPayload {
   id: string;
   email: string;
   name: string | null;
   role: "CUSTOMER" | "STAFF" | "ADMIN";
+}
+
+// Returns the session only for STAFF/ADMIN users, otherwise null.
+export async function getStaffSession() {
+  const session = await getSession();
+  if (!session || (session.role !== "ADMIN" && session.role !== "STAFF")) {
+    return null;
+  }
+  return session;
 }
 
 export async function getSession() {
@@ -32,7 +53,7 @@ export async function signJWT(payload: JWTPayload, secret = JWT_SECRET): Promise
   
   const key = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(secret),
+    encoder.encode(requireSecret(secret)),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
@@ -52,7 +73,7 @@ export async function verifyJWT(token: string, secret = JWT_SECRET): Promise<JWT
     const data = encoder.encode(`${headerBase64}.${payloadBase64}`);
     const key = await crypto.subtle.importKey(
       "raw",
-      encoder.encode(secret),
+      encoder.encode(requireSecret(secret)),
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["verify"]
