@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { CartLine } from "@repo/types";
-import { getPublishableKey, getStripe, priceCart } from "../../../../lib/stripe";
+import { CheckoutError, getPublishableKey, getStripe, priceCart } from "../../../../lib/stripe";
 
 export const runtime = "nodejs";
 
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const { email, lines } = (await req.json()) as { email?: string; lines: CartLine[] };
 
   try {
-    const cart = await priceCart(lines);
+    const cart = await priceCart(lines, { checkStock: true });
     const stripe = getStripe();
 
     const intent = await stripe.paymentIntents.create({
@@ -29,8 +29,16 @@ export async function POST(req: NextRequest) {
       amount: cart.total,
     });
   } catch (err) {
+    // Cart/stock problems are the shopper's to fix, so say what they are.
+    if (err instanceof CheckoutError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
+    // Anything else (missing/invalid Stripe keys, Stripe or database outage) is a
+    // server problem: keep the detail in the logs, not in the shopper's browser.
     console.error("payment-intent error", err);
-    const message = err instanceof Error ? err.message : "could not start payment";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json(
+      { error: "Payment is temporarily unavailable. Please try again in a few minutes." },
+      { status: 503 },
+    );
   }
 }
