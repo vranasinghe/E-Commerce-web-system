@@ -18,6 +18,7 @@ export default async function HomePage() {
   ]);
 
   const toCard = (p: Awaited<ReturnType<typeof getNewArrivals>>[number]) => ({
+    id: p.id,
     slug: p.slug,
     name: p.name,
     brand: p.brand,
@@ -25,6 +26,7 @@ export default async function HomePage() {
     images: p.images,
     featured: p.featured,
     category: p.category ? { name: p.category.name } : null,
+    variants: p.variants.map((v) => ({ ...v, price: toNumber(v.price) })),
   });
 
   const recent = arrivals.slice(0, 6).map(toCard);
