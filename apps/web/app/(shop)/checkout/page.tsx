@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, CreditCard } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@repo/ui";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/format";
+import { StripePayment } from "@/components/checkout/StripePayment";
 
-type Step = "address" | "payment" | "review" | "done";
+type Step = "address" | "review" | "payment" | "done";
 
 export default function CheckoutPage() {
   const { lines, subtotal, clear } = useCart();
   const [step, setStep] = useState<Step>("address");
-  const [placing, setPlacing] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
+  const [payment, setPayment] = useState<{ clientSecret: string; publishableKey: string } | null>(null);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
   const [form, setForm] = useState({
     email: "",
@@ -31,25 +34,43 @@ export default function CheckoutPage() {
       setForm((f) => ({ ...f, [k]: e.target.value }));
   }
 
-  async function placeOrder() {
-    setPlacing(true);
+  // Create a Stripe PaymentIntent (test mode) and move to the payment step.
+  async function startPayment() {
+    setStarting(true);
+    setStartError(null);
     try {
-      const res = await fetch("/api/checkout", {
+      const res = await fetch("/api/checkout/payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, address: form, lines }),
+        body: JSON.stringify({ email: form.email, lines }),
       });
       const data = await res.json();
-      setOrderNumber(data.orderNumber ?? "AURA-DEMO");
-      clear();
-      setStep("done");
-    } catch {
-      setOrderNumber("AURA-DEMO");
-      clear();
-      setStep("done");
+      if (!res.ok || !data.clientSecret) {
+        throw new Error(data.error ?? "Could not start payment");
+      }
+      setPayment({ clientSecret: data.clientSecret, publishableKey: data.publishableKey });
+      setStep("payment");
+    } catch (err) {
+      setStartError(err instanceof Error ? err.message : "Could not start payment");
     } finally {
-      setPlacing(false);
+      setStarting(false);
     }
+  }
+
+  // Called after Stripe confirms the card payment: save the order server-side.
+  async function finalizeOrder(paymentIntentId: string) {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: form.email, address: form, lines, paymentIntentId }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.orderNumber) {
+      throw new Error(data.error ?? "Could not save your order");
+    }
+    setOrderNumber(data.orderNumber);
+    clear();
+    setStep("done");
   }
 
   if (step === "done") {
@@ -89,7 +110,7 @@ export default function CheckoutPage() {
 
         {/* Step indicator */}
         <ol className="mb-8 flex gap-2 text-sm">
-          {(["address", "payment", "review"] as Step[]).map((s, i) => (
+          {(["address", "review", "payment"] as Step[]).map((s, i) => (
             <li
               key={s}
               className={`flex items-center gap-2 ${
@@ -109,7 +130,7 @@ export default function CheckoutPage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setStep("payment");
+              setStep("review");
             }}
             className="space-y-4"
           >
@@ -120,33 +141,8 @@ export default function CheckoutPage() {
               <Input label="City" value={form.city} onChange={update("city")} required />
               <Input label="Postal code" value={form.postalCode} onChange={update("postalCode")} required />
             </div>
-            <Button type="submit" size="lg">Continue to payment</Button>
+            <Button type="submit" size="lg">Continue to review</Button>
           </form>
-        )}
-
-        {step === "payment" && (
-          <div className="space-y-4">
-            <div className="rounded-lg border border-neutral-200 p-4">
-              <p className="flex items-center gap-2 text-sm font-medium">
-                <CreditCard className="h-4 w-4" /> Card (Stripe test mode)
-              </p>
-              <p className="mt-2 text-xs text-neutral-500">
-                In production this mounts Stripe Elements. For the demo, use test
-                card 4242 4242 4242 4242.
-              </p>
-              <div className="mt-3 grid gap-3">
-                <input className="h-10 rounded-md border border-neutral-200 px-3 text-sm" placeholder="Card number" defaultValue="4242 4242 4242 4242" />
-                <div className="grid grid-cols-2 gap-3">
-                  <input className="h-10 rounded-md border border-neutral-200 px-3 text-sm" placeholder="MM / YY" defaultValue="12 / 34" />
-                  <input className="h-10 rounded-md border border-neutral-200 px-3 text-sm" placeholder="CVC" defaultValue="123" />
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep("address")}>Back</Button>
-              <Button size="lg" onClick={() => setStep("review")}>Review order</Button>
-            </div>
-          </div>
         )}
 
         {step === "review" && (
@@ -168,13 +164,24 @@ export default function CheckoutPage() {
                 </li>
               ))}
             </ul>
+            {startError && <p className="text-sm text-red-600">{startError}</p>}
             <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep("payment")}>Back</Button>
-              <Button size="lg" onClick={placeOrder} disabled={placing}>
-                {placing ? "Placing order…" : `Place order · ${formatPrice(total)}`}
+              <Button variant="outline" onClick={() => setStep("address")}>Back</Button>
+              <Button size="lg" onClick={startPayment} disabled={starting}>
+                {starting ? "Preparing payment…" : "Continue to payment"}
               </Button>
             </div>
           </div>
+        )}
+
+        {step === "payment" && payment && (
+          <StripePayment
+            clientSecret={payment.clientSecret}
+            publishableKey={payment.publishableKey}
+            payLabel={`Pay ${formatPrice(total)}`}
+            onBack={() => setStep("review")}
+            onPaid={finalizeOrder}
+          />
         )}
       </div>
 
