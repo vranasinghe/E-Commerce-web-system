@@ -8,7 +8,6 @@ import type { ProductCardData } from "@/components/ProductCard";
 import { useWishlist } from "@/lib/wishlist-context";
 import { useCompare } from "@/lib/compare-context";
 import { useRouter } from "next/navigation";
-import { QuickAdd } from "@/components/product/QuickAdd";
 
 function Stars() {
   return (
@@ -144,16 +143,6 @@ export function ProductShowcase({
                   <Search className="h-4 w-4" />
                 </Link>
               </div>
-
-              <QuickAdd
-                product={{
-                  id: product.id,
-                  slug: product.slug,
-                  name: product.name,
-                  image,
-                  variants: product.variants,
-                }}
-              />
             </div>
 
             <div className="mt-3 text-center">

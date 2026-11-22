@@ -11,7 +11,7 @@ const cardVariants = {
 export function getFeaturedProducts() {
   return prisma.product.findMany({
     where: { active: true, featured: true },
-    include: { category: true, variants: cardVariants },
+    include: { category: true },
     take: 8,
     orderBy: { createdAt: "desc" },
   });
@@ -20,7 +20,7 @@ export function getFeaturedProducts() {
 export function getNewArrivals() {
   return prisma.product.findMany({
     where: { active: true },
-    include: { category: true, variants: cardVariants },
+    include: { category: true },
     take: 8,
     orderBy: { createdAt: "desc" },
   });
