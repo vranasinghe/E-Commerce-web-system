@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { QuickAdd, type QuickAddVariant } from "@/components/product/QuickAdd";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -14,6 +15,7 @@ interface Product {
   images: string[];
   gender: string;
   category: { name: string; slug: string };
+  variants?: QuickAddVariant[];
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -61,35 +63,46 @@ function ProductCard({ product }: { product: Product }) {
     ? product.basePrice
     : Number(product.basePrice);
 
+  const href = `/product/${product.slug}`;
+
   return (
-    <Link href={`/product/${product.slug}`} className="group block">
-      {/* Image */}
+    <div className="group">
+      {/* Image: the whole area is the link; Quick Add sits above it */}
       <div className="relative aspect-[3/4] bg-gray-50 overflow-hidden mb-3">
-        {product.images[0] ? (
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            unoptimized
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-5xl text-gray-200">
-            👕
-          </div>
-        )}
-        {/* Quick-add overlay */}
-        <div className="absolute inset-x-0 bottom-0 bg-black/70 text-white text-xs font-semibold text-center py-2.5 translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-pointer">
-          + Quick Add
-        </div>
+        <Link href={href} aria-label={product.name} className="absolute inset-0 z-0">
+          {product.images[0] ? (
+            <Image
+              src={product.images[0]}
+              alt={product.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              unoptimized
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-5xl text-gray-200">
+              👕
+            </div>
+          )}
+        </Link>
+        <QuickAdd
+          product={{
+            id: product.id,
+            slug: product.slug,
+            name: product.name,
+            image: product.images[0] ?? "",
+            variants: product.variants,
+          }}
+        />
       </div>
 
       {/* Info */}
-      <p className="text-[13px] text-gray-700 leading-snug font-medium line-clamp-2 mb-1">
-        {product.name}
-      </p>
-      <p className="text-[13px] font-bold text-gray-900">${price}</p>
-    </Link>
+      <Link href={href} className="block">
+        <p className="text-[13px] text-gray-700 leading-snug font-medium line-clamp-2 mb-1">
+          {product.name}
+        </p>
+        <p className="text-[13px] font-bold text-gray-900">${price}</p>
+      </Link>
+    </div>
   );
 }
 

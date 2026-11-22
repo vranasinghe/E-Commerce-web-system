@@ -2,6 +2,12 @@ import { prisma } from "@repo/database";
 
 // Server-side data access helpers used by React Server Components.
 
+// Variants needed by product tiles for "Quick add" (size/colour/stock/price only).
+const cardVariants = {
+  select: { id: true, size: true, color: true, stock: true, price: true },
+  orderBy: [{ color: "asc" as const }, { size: "asc" as const }],
+};
+
 export function getFeaturedProducts() {
   return prisma.product.findMany({
     where: { active: true, featured: true },
@@ -69,7 +75,7 @@ export async function getProductsByCategory(
         ? { variants: { some: { color: { equals: opts.color, mode: "insensitive" } } } }
         : {}),
     },
-    include: { category: true },
+    include: { category: true, variants: cardVariants },
     orderBy,
   });
 
@@ -86,7 +92,7 @@ export function searchProducts(q: string) {
         { brand: { contains: q, mode: "insensitive" } },
       ],
     },
-    include: { category: true },
+    include: { category: true, variants: cardVariants },
     take: 40,
   });
 }

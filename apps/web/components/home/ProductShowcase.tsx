@@ -63,16 +63,23 @@ export function ProductShowcase({
         return (
           <div key={product.slug} className="group">
             <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-neutral-100">
-              <Image
-                src={image}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 50vw, 33vw"
-                className="object-contain transition-transform duration-500 group-hover:scale-105"
-              />
+              {/* The whole image is the link; badges and actions sit above it. */}
+              <Link
+                href={`/product/${product.slug}`}
+                aria-label={product.name}
+                className="absolute inset-0 z-0"
+              >
+                <Image
+                  src={image}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-contain transition-transform duration-500 group-hover:scale-105"
+                />
+              </Link>
 
               {/* Badges */}
-              <div className="absolute left-3 top-3 flex flex-col gap-1">
+              <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1">
                 {product.featured && (
                   <span className="rounded bg-emerald-500 px-2 py-1 text-[10px] font-bold uppercase text-white">
                     New
@@ -80,13 +87,13 @@ export function ProductShowcase({
                 )}
               </div>
               {i % 3 === 0 && (
-                <span className="absolute right-3 top-3 rounded bg-[#e6186c] px-2 py-1 text-[10px] font-bold uppercase text-white">
+                <span className="pointer-events-none absolute right-3 top-3 z-10 rounded bg-[#e6186c] px-2 py-1 text-[10px] font-bold uppercase text-white">
                   Sale
                 </span>
               )}
 
               {/* Hover action icons */}
-              <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <div className="pointer-events-none absolute right-2 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-2 opacity-0 transition-opacity duration-300 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 [@media(hover:none)]:pointer-events-auto [@media(hover:none)]:opacity-100">
                 {/* ♥ Wishlist */}
                 <button
                   aria-label="Add to wishlist"
