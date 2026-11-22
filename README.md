@@ -156,11 +156,13 @@ Gemini chatbot. The default is `TRYON_SPACE="yisol/IDM-VTON"`; optionally set
 bounded between 30 and 300 seconds. The installed Python requirements must be
 updated on the AI service host before deploying these changes.
 
-The current integration supports five tops listed in
-`apps/web/lib/tryon-catalog.ts`. It sends their dedicated garment-only photos,
-not the catalog model photos. Each preview uses the displayed sample color.
-Other garments remain unavailable until a compatible provider and garment
-inputs are configured. Uploaded photos must be JPG, PNG, or WebP, up to 8 MB,
+The current integration supports five tops and four hip-length jackets listed in
+`apps/web/lib/tryon-catalog.ts` (the provider only renders upper-body garments).
+It sends their dedicated garment-only photos, not the catalog model photos. Each
+preview uses the displayed sample color. Dresses, trousers, shorts and long coats
+remain unavailable: in testing, the long wool overcoat came out as a short blazer.
+To add a product, add a garment-only flat-lay photo and a catalog entry, and check
+the real result first. Uploaded photos must be JPG, PNG, or WebP, up to 8 MB,
 between 128 pixels per side and 20 megapixels.
 
 Only real provider output is reported as successful. Provider outages, quota

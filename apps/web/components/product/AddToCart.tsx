@@ -199,7 +199,7 @@ export function AddToCart({
                 type="button"
                 onClick={() => setTryOnOpen(true)}
                 disabled={!tryOnGarment}
-                title={tryOnGarment ? "Preview the sample top on your photo" : "Virtual try-on is available for selected tops only"}
+                title={tryOnGarment ? "Preview this garment on your photo" : "Virtual try-on is available for selected tops and jackets only"}
                 className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-900 font-medium disabled:cursor-not-allowed disabled:text-neutral-400"
               >
                 <Sparkles className="h-3.5 w-3.5 text-indigo-500 fill-indigo-100" />
@@ -213,7 +213,7 @@ export function AddToCart({
               </Link>
             </div>
           </div>
-          {!tryOnGarment && <p className="mb-2 text-xs text-neutral-500">Virtual try-on is available for selected tops only.</p>}
+          {!tryOnGarment && <p className="mb-2 text-xs text-neutral-500">Virtual try-on is available for selected tops and jackets only.</p>}
           <div className="flex flex-wrap gap-2">
             {sizes.map((sz) => {
               const disabled = stockFor(sz) === 0;

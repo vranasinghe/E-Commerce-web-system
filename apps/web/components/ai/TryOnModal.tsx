@@ -173,12 +173,12 @@ export function TryOnModal({ productName, garmentImage, garmentColor, isOpen, on
           {!resultImage ? (
             <>
               <p className="mb-5 text-sm leading-relaxed text-neutral-600">
-                Preview this top on a clear, front-facing photo with your upper body visible.
+                Preview this garment on a clear, front-facing photo with your upper body visible.
                 Use JPG, PNG, or WebP, up to 8 MB.
               </p>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="rounded-xl bg-neutral-50 p-4 text-center">
-                  <h3 className="mb-3 text-sm font-semibold text-neutral-800">Selected top</h3>
+                  <h3 className="mb-3 text-sm font-semibold text-neutral-800">Selected garment</h3>
                   <img src={garmentImage} alt={productName + " garment-only photo"}
                     className="mx-auto h-48 w-full object-contain sm:h-60" />
                   <p className="mt-3 text-sm font-medium text-neutral-900">{productName}</p>
@@ -213,7 +213,7 @@ export function TryOnModal({ productName, garmentImage, garmentColor, isOpen, on
           ) : (
             <div className="text-center">
               <h3 className="mb-4 font-semibold text-neutral-900">Your AI preview</h3>
-              <img src={resultImage} alt="AI-generated preview of the selected top on your photo"
+              <img src={resultImage} alt="AI-generated preview of the selected garment on your photo"
                 className="mx-auto max-h-[55dvh] w-full rounded-xl object-contain" />
               <div className="mt-5 flex flex-wrap justify-center gap-3">
                 <button onClick={() => { setResultImage(null); setError(null); }}
