@@ -16,11 +16,28 @@ export const orderService = {
     });
   },
 
-  updateStatus(id: string, status: string) {
-    return prisma.order.update({
-      where: { id },
-      // Cast: status is validated by the route against the OrderStatus enum.
-      data: { status: status as never },
-    });
+  // Updates the order and appends a history entry so tracking stays in sync
+  // with status changes made through the API.
+  async updateStatus(
+    id: string,
+    status: string,
+    extra: { trackingNumber?: string; carrier?: string; note?: string } = {},
+  ) {
+    // Cast: status is validated by the route against the OrderStatus enum.
+    const typed = status as never;
+    const [order] = await prisma.$transaction([
+      prisma.order.update({
+        where: { id },
+        data: {
+          status: typed,
+          ...(extra.trackingNumber && { trackingNumber: extra.trackingNumber }),
+          ...(extra.carrier && { carrier: extra.carrier }),
+        },
+      }),
+      prisma.orderEvent.create({
+        data: { orderId: id, status: typed, note: extra.note ?? null },
+      }),
+    ]);
+    return order;
   },
 };

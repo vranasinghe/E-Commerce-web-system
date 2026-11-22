@@ -85,9 +85,14 @@ export default function CheckoutPage() {
           <span className="font-medium text-neutral-900">{orderNumber}</span> is on
           its way.
         </p>
-        <Link href="/" className="mt-6">
-          <Button>Continue shopping</Button>
-        </Link>
+        <div className="mt-6 flex gap-3">
+          <Link href={`/track?order=${encodeURIComponent(orderNumber ?? "")}`}>
+            <Button variant="outline">Track your order</Button>
+          </Link>
+          <Link href="/">
+            <Button>Continue shopping</Button>
+          </Link>
+        </div>
       </div>
     );
   }
