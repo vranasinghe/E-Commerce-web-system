@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
         userId,
         status: "PAID",
         stripePaymentId: paymentIntentId,
+        events: { create: { status: "PAID", note: "Payment received" } },
         subtotal: new Prisma.Decimal(cart.subtotal.toFixed(2)),
         shipping: new Prisma.Decimal(cart.shipping.toFixed(2)),
         total: new Prisma.Decimal(cart.total.toFixed(2)),

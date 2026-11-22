@@ -37,8 +37,11 @@ export default async function OrdersPage() {
     <div>
       <h1 className="text-2xl font-semibold">Your orders</h1>
       <p className="mt-1 text-sm text-neutral-500">
-        Order history &amp; tracking. (Auth via NextAuth is scaffolded — this view
-        currently shows recent demo orders.)
+        Order history &amp; tracking. Placed an order as a guest?{" "}
+        <Link href="/track" className="underline">
+          Track it with your order number
+        </Link>
+        .
       </p>
 
       {orders.length === 0 ? (
@@ -54,7 +57,12 @@ export default async function OrdersPage() {
             <li key={o.id} className="rounded-xl border border-neutral-200 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="font-medium">{o.orderNumber}</p>
+                  <Link
+                    href={`/account/orders/${o.orderNumber}`}
+                    className="font-medium underline-offset-2 hover:underline"
+                  >
+                    {o.orderNumber}
+                  </Link>
                   <p className="text-sm text-neutral-500">
                     {new Date(o.createdAt).toLocaleDateString()} ·{" "}
                     {o.items.length} item{o.items.length === 1 ? "" : "s"}
@@ -69,6 +77,12 @@ export default async function OrdersPage() {
                 </span>
                 <span className="font-medium">{formatPrice(toNumber(o.total))}</span>
               </div>
+              <Link
+                href={`/account/orders/${o.orderNumber}`}
+                className="mt-3 inline-block text-sm underline"
+              >
+                Track order
+              </Link>
             </li>
           ))}
         </ul>

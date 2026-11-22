@@ -28,7 +28,7 @@ const SUPPORT_LINKS = [
   { label: "Checkout", href: "/checkout" },
   { label: "Cart", href: "/cart" },
   { label: "FAQ's", href: "#" },
-  { label: "Order Tracking", href: "/account/orders" },
+  { label: "Order Tracking", href: "/track" },
   { label: "Help & Support", href: "#" },
 ];
 
