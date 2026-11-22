@@ -44,7 +44,8 @@ def normalize_image(data: bytes, path: Path) -> None:
 
 class TryOnService:
     @staticmethod
-    def run_tryon(user_img_bytes: bytes, garment_img_bytes: bytes, description: str = "upper-body top") -> bytes:
+    def run_tryon(user_img_bytes: bytes, garment_img_bytes: bytes, description: str = "upper-body top",
+                  garment_type: str = "upper_body") -> bytes:
         """Run the real provider in an isolated process with a hard deadline."""
         validate_image(user_img_bytes)
         validate_image(garment_img_bytes)
@@ -58,7 +59,7 @@ class TryOnService:
             try:
                 result = subprocess.run(
                     [sys.executable, "-m", "src.services.tryon_worker", str(user_path),
-                     str(garment_path), str(output_path), description[:200]],
+                     str(garment_path), str(output_path), description[:200], garment_type],
                     cwd=SERVICE_ROOT, capture_output=True, text=True,
                     timeout=TRYON_TIMEOUT_SECONDS,
                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
