@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma, Role } from "@prisma/client";
 import { createHash } from "node:crypto";
 import { getImages } from "./product-images";
+import { WOMENS_CATALOG } from "./womens-catalog";
 
 const prisma = new PrismaClient();
 
@@ -20,6 +21,8 @@ type SeedProduct = {
   basePrice: number;
   colors: string[];
   featured?: boolean;
+  /** Overrides the local photos from product-images.ts (e.g. Cloudinary URLs). */
+  images?: string[];
 };
 
 const CATEGORIES = [
@@ -52,6 +55,7 @@ const PRODUCTS: SeedProduct[] = [
   { name: "Denim Trucker Jacket", slug: "denim-trucker-jacket", description: "Classic trucker jacket in rigid non-stretch denim.", brand: "Forge", gender: "men", category: "outerwear", basePrice: 98.0, colors: ["Washed Blue", "Ecru"] },
   { name: "Hooded Rain Shell", slug: "hooded-rain-shell", description: "Packable waterproof shell with taped seams.", brand: "Nomad", gender: "men", category: "outerwear", basePrice: 112.0, colors: ["Slate", "Yellow"] },
   { name: "Shearling Trucker", slug: "shearling-trucker", description: "Denim trucker lined with cozy faux shearling.", brand: "Forge", gender: "men", category: "outerwear", basePrice: 156.0, colors: ["Indigo"] },
+  ...WOMENS_CATALOG,
 ];
 
 async function main() {
@@ -123,7 +127,7 @@ async function main() {
         brand: p.brand,
         gender: p.gender,
         basePrice: new Prisma.Decimal(p.basePrice),
-        images: getImages(p.slug),
+        images: p.images ?? getImages(p.slug),
         featured: p.featured ?? false,
         categoryId,
         variants: {
@@ -162,7 +166,7 @@ async function main() {
       });
     }
   }
-  console.log(`   • products: ${PRODUCTS.length} (with matching AI-generated demo photos)`);
+  console.log(`   • products: ${PRODUCTS.length} (local demo photos + hosted women's catalog)`);
 
   // Coupon
   await prisma.coupon.create({

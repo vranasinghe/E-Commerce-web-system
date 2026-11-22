@@ -39,7 +39,13 @@ export interface PricedCart {
 }
 
 // Prices are always taken from the database, never from the client.
-export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
+// Pass `checkStock` when starting a payment so customers can't pay for items that
+// are unavailable. It is deliberately off when finalising an order, so an already
+// completed payment is never refused because stock changed in the meantime.
+export async function priceCart(
+  lines: CartLine[],
+  opts: { checkStock?: boolean } = {},
+): Promise<PricedCart> {
   if (!Array.isArray(lines) || lines.length === 0) {
     throw new Error("cart is empty");
   }
@@ -55,6 +61,13 @@ export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
     const quantity = Math.floor(Number(l.quantity));
     if (!v || !v.product.active) throw new Error(`unknown item: ${l.name}`);
     if (!Number.isFinite(quantity) || quantity < 1) throw new Error("invalid quantity");
+    if (opts.checkStock && v.stock < quantity) {
+      throw new Error(
+        v.stock <= 0
+          ? `${v.product.name} (${v.color}/${v.size}) is out of stock`
+          : `Only ${v.stock} of ${v.product.name} (${v.color}/${v.size}) left`,
+      );
+    }
     return {
       productId: v.productId,
       variantId: v.id,

@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const { email, lines } = (await req.json()) as { email?: string; lines: CartLine[] };
 
   try {
-    const cart = await priceCart(lines);
+    const cart = await priceCart(lines, { checkStock: true });
     const stripe = getStripe();
 
     const intent = await stripe.paymentIntents.create({
