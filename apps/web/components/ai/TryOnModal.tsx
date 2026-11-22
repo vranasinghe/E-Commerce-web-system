@@ -3,11 +3,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { X, Upload, Sparkles, Download } from "lucide-react";
+import { TRYON_TIPS, type TryOnGarmentType } from "@/lib/tryon-catalog";
 
 interface TryOnModalProps {
   productName: string;
   garmentImage: string;
   garmentColor: string;
+  garmentType: TryOnGarmentType;
+  /** Photo advice for this garment; defaults to the advice for its type. */
+  tip?: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -30,7 +34,7 @@ async function responseData(response: Response) {
   return data;
 }
 
-export function TryOnModal({ productName, garmentImage, garmentColor, isOpen, onClose }: TryOnModalProps) {
+export function TryOnModal({ productName, garmentImage, garmentColor, garmentType, tip, isOpen, onClose }: TryOnModalProps) {
   const [userPhoto, setUserPhoto] = useState<File | null>(null);
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -99,7 +103,7 @@ export function TryOnModal({ productName, garmentImage, garmentColor, isOpen, on
       const body = new FormData();
       body.append("user_image", userPhoto);
       body.append("garment_image", new File([garment], "garment.webp", { type: garment.type }));
-      body.append("garment_type", "upper_body");
+      body.append("garment_type", garmentType);
       body.append("garment_description", productName + ", " + garmentColor);
       const queued = await responseData(await fetch("/api/tryon", {
         method: "POST", body, signal: controller.signal,
@@ -119,7 +123,7 @@ export function TryOnModal({ productName, garmentImage, garmentColor, isOpen, on
         }));
         if (status.status === "FAILED") throw new Error(status.error || "The preview could not be generated. Please try again.");
         if (status.status === "COMPLETED") {
-          if (status.provider !== "idm-vton") throw new Error("The service could not verify an AI-generated result.");
+          if (status.provider !== "idm-vton" && status.provider !== "ootdiffusion") throw new Error("The service could not verify an AI-generated result.");
           const result = await fetch("/api/tryon/result/" + queued.job_id, {
             cache: "no-store", signal: controller.signal,
           });
@@ -173,8 +177,7 @@ export function TryOnModal({ productName, garmentImage, garmentColor, isOpen, on
           {!resultImage ? (
             <>
               <p className="mb-5 text-sm leading-relaxed text-neutral-600">
-                Preview this garment on a clear, front-facing photo with your upper body visible.
-                Use JPG, PNG, or WebP, up to 8 MB.
+                {tip ?? TRYON_TIPS[garmentType]} Use JPG, PNG, or WebP, up to 8 MB.
               </p>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="rounded-xl bg-neutral-50 p-4 text-center">
