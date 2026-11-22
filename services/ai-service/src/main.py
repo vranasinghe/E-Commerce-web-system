@@ -51,14 +51,17 @@ def prune_tryon_jobs():
                 Path(job["file_path"]).unlink(missing_ok=True)
             del tryon_jobs[job_id]
 
-def process_tryon_task(job_id: str, user_bytes: bytes, garment_bytes: bytes, description: str = "upper-body top"):
+TRYON_GARMENT_TYPES = {"upper_body": "idm-vton", "lower_body": "ootdiffusion", "dress": "ootdiffusion"}
+
+def process_tryon_task(job_id: str, user_bytes: bytes, garment_bytes: bytes, description: str = "upper-body top",
+                       garment_type: str = "upper_body"):
     with tryon_lock:
         job = tryon_jobs.get(job_id)
         if not job or job["status"] != "PENDING":
             return
         job["status"] = "PROCESSING"
     try:
-        output_bytes = TryOnService.run_tryon(user_bytes, garment_bytes, description)
+        output_bytes = TryOnService.run_tryon(user_bytes, garment_bytes, description, garment_type)
         with tryon_lock:
             job = tryon_jobs.get(job_id)
             if not job or job["status"] != "PROCESSING":
@@ -66,7 +69,7 @@ def process_tryon_task(job_id: str, user_bytes: bytes, garment_bytes: bytes, des
             Path(CACHE_DIR).mkdir(parents=True, exist_ok=True)
             output_path = str(Path(CACHE_DIR) / f"result_{job_id}.jpg")
             Path(output_path).write_bytes(output_bytes)
-            job.update(status="COMPLETED", file_path=output_path, provider="idm-vton", finished_at=time.monotonic())
+            job.update(status="COMPLETED", file_path=output_path, provider=TRYON_GARMENT_TYPES[garment_type], finished_at=time.monotonic())
     except Exception as e:
         print("Try-on job failed:", type(e).__name__)
         message = str(e) if isinstance(e, TryOnError) else "The AI preview could not be generated. Please try again."
@@ -101,8 +104,8 @@ async def tryon(
     garment_type: str = Form("upper_body"),
     garment_description: str = Form("upper-body top"),
 ):
-    if garment_type != "upper_body":
-        raise HTTPException(status_code=422, detail="Virtual try-on currently supports tops only.")
+    if garment_type not in TRYON_GARMENT_TYPES:
+        raise HTTPException(status_code=422, detail="Virtual try-on supports tops, jackets, trousers, shorts and dresses.")
     user_bytes = await user_image.read(MAX_UPLOAD_BYTES + 1)
     garment_bytes = await garment_image.read(MAX_UPLOAD_BYTES + 1)
     if max(len(user_bytes), len(garment_bytes)) > MAX_UPLOAD_BYTES:
@@ -118,7 +121,7 @@ async def tryon(
         if sum(j["status"] in ("PENDING", "PROCESSING") for j in tryon_jobs.values()) >= 2:
             raise HTTPException(status_code=429, detail="The try-on service is busy. Please try again shortly.")
         tryon_jobs[job_id] = {"status": "PENDING", "created_at": time.monotonic()}
-    background_tasks.add_task(process_tryon_task, job_id, user_bytes, garment_bytes, garment_description[:200])
+    background_tasks.add_task(process_tryon_task, job_id, user_bytes, garment_bytes, garment_description[:200], garment_type)
     return Response(
         content=json.dumps({"job_id": job_id, "status": "PENDING", "timeout_seconds": TRYON_TIMEOUT_SECONDS}),
         media_type="application/json", status_code=202,

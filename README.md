@@ -156,12 +156,30 @@ Gemini chatbot. The default is `TRYON_SPACE="yisol/IDM-VTON"`; optionally set
 bounded between 30 and 300 seconds. The installed Python requirements must be
 updated on the AI service host before deploying these changes.
 
-The current integration supports five tops listed in
-`apps/web/lib/tryon-catalog.ts`. It sends their dedicated garment-only photos,
-not the catalog model photos. Each preview uses the displayed sample color.
-Other garments remain unavailable until a compatible provider and garment
-inputs are configured. Uploaded photos must be JPG, PNG, or WebP, up to 8 MB,
-between 128 pixels per side and 20 megapixels.
+Garment types are routed to different Hugging Face Spaces by the AI service:
+
+| Type | Products | Space |
+| :--- | :--- | :--- |
+| `upper_body` | tops and hip-length jackets | `yisol/IDM-VTON` (`TRYON_SPACE`) |
+| `dress` | dresses | `levihsu/OOTDiffusion`, "Dress" (`TRYON_SPACE_FULL`) |
+| `lower_body` | trousers and shorts | `levihsu/OOTDiffusion`, "Lower-body" (`TRYON_SPACE_FULL`) |
+
+Products are enabled in `apps/web/lib/tryon-catalog.ts`, and the integration sends
+their dedicated garment-only photos, never the catalog model photos (a model photo
+drags the model's own trousers into the result). Each preview uses the displayed
+sample color. Not enabled: the long Wool Overcoat (renders as a blazer or with
+artifacts), and the women's catalog products that only have model photos (White Scoop
+Crop Top, Blush Button Blouse, Striped Crop Top, Blue Lace Mini Dress, Yellow Flared
+Sundress). Add a flat-lay photo and a catalog entry, and check the real result first.
+
+For dresses and trousers the output follows the length of what the customer is
+wearing (long trousers can show through a dress, and shorts become long trousers on
+someone in trousers), so the dialog shows photo advice for each garment type.
+
+**GPU quota:** both Spaces run on shared ZeroGPU. Anonymous use runs out after a few
+previews, and a free Hugging Face account only has a few minutes a day. Set `HF_TOKEN`
+on the AI service host (Render) and, for real traffic, use a Hugging Face PRO account
+(40 minutes a day) or host the models yourself.
 
 Only real provider output is reported as successful. Provider outages, quota
 errors, timeouts, and invalid images produce a visible error with a retry option.
