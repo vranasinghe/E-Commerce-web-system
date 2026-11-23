@@ -16,6 +16,7 @@
     "db:migrate": "npm run db:migrate --workspace=@repo/database",
     "db:seed": "npm run db:seed --workspace=@repo/database",
     "db:update-images": "npm run db:update-images --workspace=@repo/database",
+    "db:add-womens-catalog": "npm run db:add-womens-catalog --workspace=@repo/database --",
     "db:studio": "npm run db:studio --workspace=@repo/database",
     "images:publish": "npm run images:publish --workspace=web --"
   },

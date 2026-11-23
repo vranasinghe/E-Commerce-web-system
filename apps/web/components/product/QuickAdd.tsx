@@ -64,8 +64,9 @@ export function QuickAdd({ product }: { product: QuickAddProduct }) {
   const barVisibility =
     "translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 [@media(hover:none)]:translate-y-0";
 
-  // No variant data (e.g. demo products): fall back to the product page.
-  if (variants.length === 0 || !product.id) {
+  // No variant data, or nothing in stock: don't offer an in-tile add (and don't
+  // label it "Sold out"); send people to the product page instead.
+  if (variants.length === 0 || !product.id || soldOut) {
     return (
       <Link
         href={`/product/${product.slug}`}
@@ -73,16 +74,6 @@ export function QuickAdd({ product }: { product: QuickAddProduct }) {
       >
         View options
       </Link>
-    );
-  }
-
-  if (soldOut) {
-    return (
-      <div
-        className={`absolute inset-x-0 bottom-0 z-10 bg-neutral-500/80 py-2.5 text-center text-xs font-semibold text-white transition-transform duration-300 ${barVisibility}`}
-      >
-        Sold out
-      </div>
     );
   }
 

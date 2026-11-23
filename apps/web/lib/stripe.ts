@@ -2,6 +2,13 @@ import Stripe from "stripe";
 import { prisma } from "@repo/database";
 import type { CartLine } from "@repo/types";
 
+/**
+ * An error that is safe to show to the shopper (empty cart, unknown item, out of
+ * stock...). Anything else, such as missing or invalid Stripe keys, is a server
+ * problem: it is logged, and the shopper only sees a generic message.
+ */
+export class CheckoutError extends Error {}
+
 // Demo build: Stripe is restricted to TEST mode. Live keys are refused so real
 // cards can never be charged by this app.
 export function getStripe(): Stripe {
@@ -39,9 +46,15 @@ export interface PricedCart {
 }
 
 // Prices are always taken from the database, never from the client.
-export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
+// Pass `checkStock` when starting a payment so customers can't pay for items that
+// are unavailable. It is deliberately off when finalising an order, so an already
+// completed payment is never refused because stock changed in the meantime.
+export async function priceCart(
+  lines: CartLine[],
+  opts: { checkStock?: boolean } = {},
+): Promise<PricedCart> {
   if (!Array.isArray(lines) || lines.length === 0) {
-    throw new Error("cart is empty");
+    throw new CheckoutError("Your cart is empty");
   }
 
   const variants = await prisma.productVariant.findMany({
@@ -53,8 +66,15 @@ export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
   const items = lines.map((l) => {
     const v = byId.get(l.variantId);
     const quantity = Math.floor(Number(l.quantity));
-    if (!v || !v.product.active) throw new Error(`unknown item: ${l.name}`);
-    if (!Number.isFinite(quantity) || quantity < 1) throw new Error("invalid quantity");
+    if (!v || !v.product.active) throw new CheckoutError(`${l.name} is no longer available`);
+    if (!Number.isFinite(quantity) || quantity < 1) throw new CheckoutError("Invalid quantity");
+    if (opts.checkStock && v.stock < quantity) {
+      throw new CheckoutError(
+        v.stock <= 0
+          ? `${v.product.name} (${v.color}/${v.size}) is out of stock`
+          : `Only ${v.stock} of ${v.product.name} (${v.color}/${v.size}) left`,
+      );
+    }
     return {
       productId: v.productId,
       variantId: v.id,

@@ -214,6 +214,20 @@ orders, inventory, or other product fields, configure the root `.env` and run:
 npm run db:update-images
 ```
 
+### Women's catalog (Cloudinary photos) and restocking
+
+Five women's products (White Scoop Crop Top, Blue Lace Mini Dress, Blush Button
+Blouse, Striped Crop Top, Yellow Flared Sundress) use Cloudinary-hosted photos and
+are part of `db:seed`. To add them to an **existing** database, or restock them if
+their variants are at zero stock, without deleting users or orders:
+
+```bash
+# Point DATABASE_URL at the target database, then preview the changes
+npm run db:add-womens-catalog
+# Apply them (creates missing products, restocks zero-stock variants to 20)
+npm run db:add-womens-catalog -- --apply
+```
+
 ### Publish galleries to Cloudinary and the deployed database
 
 Copy `.env.cloud.example` to `.env.cloud.local`, then configure `CLOUDINARY_URL`
