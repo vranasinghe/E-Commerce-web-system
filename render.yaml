@@ -1,0 +1,57 @@
+# Render Blueprint: Postgres + API + AI service.
+# The Next.js storefront (apps/web) is deployed separately on Vercel.
+# Variables marked `sync: false` are prompted for in the Render dashboard and are never stored in git.
+
+databases:
+  - name: ecommerce-db
+    databaseName: ecommerce
+    plan: free # Render free Postgres expires after ~30 days; use a paid plan for anything lasting
+
+services:
+  # ── Express API ───────────────────────────────────────────────
+  - type: web
+    name: ecommerce-api
+    runtime: node
+    plan: free
+    # @repo/database and @repo/types export TypeScript source, so run with tsx (not `node dist`).
+    buildCommand: npm install --include=dev && npx prisma generate --schema packages/database/prisma/schema.prisma
+    startCommand: npx tsx apps/api/src/index.ts
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 10000
+      - key: API_PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecommerce-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false # must be the SAME value as on Vercel
+      - key: AI_SERVICE_URL
+        sync: false # public URL of ecommerce-ai, e.g. https://ecommerce-ai.onrender.com
+
+  # ── FastAPI AI service (chatbot, recommendations, try-on proxy) ──
+  - type: web
+    name: ecommerce-ai
+    runtime: python
+    plan: free
+    rootDir: services/ai-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn src.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecommerce-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: HF_TOKEN
+        sync: false

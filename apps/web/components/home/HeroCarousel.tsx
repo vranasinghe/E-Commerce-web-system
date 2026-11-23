@@ -23,7 +23,7 @@ const SLIDES: Slide[] = [
     title: "Sharper Every Day",
     description:
       "From weekday staples to statement layers — refresh your wardrobe with the season's best.",
-    image: "/images/hero/reference-editorial.webp",
+    image: "https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/hero/reference-editorial.webp",
     bg: "#a8ada6",
     alt: "Brunette model wearing a black camisole and blue jeans beside a wooden stool",
     variant: "framed",
@@ -33,7 +33,7 @@ const SLIDES: Slide[] = [
     title: "Elegance Meets Everyday",
     description:
       "Easy linen, soft textures, and effortless pieces for wherever the day takes you.",
-    image: "/images/hero/natural-women.webp",
+    image: "https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/hero/natural-women.webp",
     bg: "#f0e8dc",
     alt: "Blonde model wearing a white linen shirt and beige trousers in a sunlit stone courtyard",
     variant: "natural",
@@ -43,7 +43,7 @@ const SLIDES: Slide[] = [
     title: "Made for Your Everyday",
     description:
       "Refined layers and timeless essentials, styled for the city and beyond.",
-    image: "/images/hero/natural-men.webp",
+    image: "https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/hero/natural-men.webp",
     bg: "#e0cbb4",
     alt: "Male model in a camel wool overcoat walking along a warm stone city street",
     variant: "natural",

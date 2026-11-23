@@ -56,7 +56,7 @@ export function ProductShowcase({
     <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3">
       {products.map((product, i) => {
         const image =
-          product.images[0] ?? "/images/products/placeholder.svg";
+          product.images[0] ?? "https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/products/placeholder__svg.svg";
         const wishlisted = isWishlisted(product.slug + "-default");
         const comparing = isComparing(product.slug);
 

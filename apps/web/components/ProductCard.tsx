@@ -15,7 +15,7 @@ export interface ProductCardData {
 }
 
 export function ProductCard({ product }: { product: ProductCardData }) {
-  const image = product.images[0] ?? "/images/products/placeholder.svg";
+  const image = product.images[0] ?? "https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/products/placeholder__svg.svg";
   const href = `/product/${product.slug}`;
   // Plain numbers only: this data crosses into a client component.
   const variants = product.variants?.map((v) => ({ ...v, price: toNumber(v.price) }));
