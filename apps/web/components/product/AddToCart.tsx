@@ -94,9 +94,9 @@ export function AddToCart({
     return variants.find((v) => v.color === color && v.size === sz)?.stock ?? 0;
   }
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!selected) return;
-    addToCart({
+    const ok = await addToCart({
       productId,
       variantId: selected.id,
       slug,
@@ -107,6 +107,7 @@ export function AddToCart({
       price: toNumber(selected.price),
       quantity: qty,
     });
+    if (!ok) return; // signed out: the sign-in prompt is showing
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   }

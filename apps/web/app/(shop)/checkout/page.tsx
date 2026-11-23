@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { Button } from "@repo/ui";
 import { useCart } from "@/lib/cart-context";
@@ -12,6 +13,8 @@ type Step = "address" | "review" | "payment" | "done";
 
 export default function CheckoutPage() {
   const { lines, subtotal, clear } = useCart();
+  const router = useRouter();
+  const [signedIn, setSignedIn] = useState(false);
   const [step, setStep] = useState<Step>("address");
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
@@ -25,6 +28,37 @@ export default function CheckoutPage() {
     postalCode: "",
     country: "US",
   });
+
+  // Ordering needs a signed-in account (the middleware also guards this page).
+  // The order email always comes from the account, so it is shown read-only.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/session", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data: { user: { email: string; name: string | null } | null }) => {
+        if (cancelled) return;
+        if (!data.user) {
+          router.replace("/login?from=/checkout");
+          return;
+        }
+        setForm((f) => ({
+          ...f,
+          email: data.user!.email,
+          fullName: f.fullName || data.user!.name || "",
+        }));
+        setSignedIn(true);
+      })
+      .catch(() => {
+        if (!cancelled) router.replace("/login?from=/checkout");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
+  function goToLogin() {
+    router.replace("/login?from=/checkout");
+  }
 
   const shipping = subtotal >= 75 ? 0 : 6.95;
   const total = subtotal + shipping;
@@ -42,8 +76,9 @@ export default function CheckoutPage() {
       const res = await fetch("/api/checkout/payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, lines }),
+        body: JSON.stringify({ lines }),
       });
+      if (res.status === 401) return goToLogin();
       const data = await res.json();
       if (!res.ok || !data.clientSecret) {
         throw new Error(data.error ?? "Could not start payment");
@@ -62,8 +97,12 @@ export default function CheckoutPage() {
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: form.email, address: form, lines, paymentIntentId }),
+      body: JSON.stringify({ address: form, lines, paymentIntentId }),
     });
+    if (res.status === 401) {
+      goToLogin();
+      throw new Error("Your session expired. Please sign in again.");
+    }
     const data = await res.json();
     if (!res.ok || !data.orderNumber) {
       throw new Error(data.error ?? "Could not save your order");
@@ -85,9 +124,14 @@ export default function CheckoutPage() {
           <span className="font-medium text-neutral-900">{orderNumber}</span> is on
           its way.
         </p>
-        <Link href="/" className="mt-6">
-          <Button>Continue shopping</Button>
-        </Link>
+        <div className="mt-6 flex gap-3">
+          <Link href={`/account/orders/${encodeURIComponent(orderNumber ?? "")}`}>
+            <Button variant="outline">Track your order</Button>
+          </Link>
+          <Link href="/">
+            <Button>Continue shopping</Button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -101,6 +145,10 @@ export default function CheckoutPage() {
         </Link>
       </div>
     );
+  }
+
+  if (!signedIn) {
+    return <div className="py-24 text-center text-neutral-500">Checking your account…</div>;
   }
 
   return (
@@ -134,7 +182,8 @@ export default function CheckoutPage() {
             }}
             className="space-y-4"
           >
-            <Input label="Email" value={form.email} onChange={update("email")} type="email" required />
+            <Input label="Email" value={form.email} type="email" readOnly required
+              title="Orders use the email of the account you are signed in with" />
             <Input label="Full name" value={form.fullName} onChange={update("fullName")} required />
             <Input label="Address" value={form.line1} onChange={update("line1")} required />
             <div className="grid grid-cols-2 gap-4">
@@ -215,7 +264,7 @@ function Input({
       <span className="mb-1 block text-sm font-medium">{label}</span>
       <input
         {...props}
-        className="h-10 w-full rounded-md border border-neutral-200 px-3 text-sm outline-none focus:border-neutral-400"
+        className="h-10 w-full rounded-md border border-neutral-200 px-3 text-sm outline-none focus:border-neutral-400 read-only:bg-neutral-50 read-only:text-neutral-500"
       />
     </label>
   );

@@ -197,13 +197,28 @@ model Order {
   shippingAddress   Address?    @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
   stripePaymentId   String?
   trackingNumber    String?
+  carrier           String?
+  estimatedDelivery DateTime?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
-  items OrderItem[]
+  items  OrderItem[]
+  events OrderEvent[]
 
   @@index([userId])
   @@index([status])
+}
+
+// Status history for order tracking: one row per status change.
+model OrderEvent {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([orderId, createdAt])
 }
 
 model OrderItem {

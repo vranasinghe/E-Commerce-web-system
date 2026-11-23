@@ -2,7 +2,14 @@
 
 import { cookies } from "next/headers";
 import { prisma } from "@repo/database";
+import { randomBytes } from "crypto";
 import { hashPassword, verifyPassword, signJWT } from "../../lib/auth";
+import {
+  DEMO_EMAIL_DOMAIN,
+  DEMO_TTL_MS,
+  isDemoLoginEnabled,
+  purgeExpiredDemoData,
+} from "../../lib/demo";
 
 // ─── Unified Login (role-aware) ────────────────────────────────────────────
 // Used by the single /login portal. Returns { success, role } so the
@@ -125,6 +132,51 @@ export async function signupAction(_prevState: unknown, formData: FormData) {
   } catch (err: unknown) {
     console.error("Signup action error:", err);
     return { error: "An unexpected error occurred during signup" };
+  }
+}
+
+// ─── Demo login ────────────────────────────────────────────────────────────
+// One click signs the visitor in to a brand-new temporary account (no password
+// exists for it). The account, its session and all its data expire after 24h.
+export async function demoLoginEnabledAction(): Promise<boolean> {
+  return isDemoLoginEnabled();
+}
+
+export async function demoLoginAction(
+  role: "CUSTOMER" | "ADMIN",
+): Promise<{ success: true; role: "CUSTOMER" | "ADMIN" } | { error: string }> {
+  if (!isDemoLoginEnabled()) return { error: "Demo login is not available." };
+  if (role !== "CUSTOMER" && role !== "ADMIN") return { error: "Unknown demo account." };
+
+  try {
+    // Housekeeping: clear out demo accounts that have passed 24 hours.
+    await purgeExpiredDemoData().catch((err) => console.error("demo purge failed", err));
+
+    const user = await prisma.user.create({
+      data: {
+        email: `demo-${randomBytes(6).toString("hex")}@${DEMO_EMAIL_DOMAIN}`,
+        name: role === "ADMIN" ? "Demo Admin" : "Demo Customer",
+        role,
+      },
+    });
+
+    const ttlSeconds = DEMO_TTL_MS / 1000;
+    const token = await signJWT(
+      { id: user.id, email: user.email, name: user.name, role: user.role },
+      undefined,
+      ttlSeconds,
+    );
+    cookies().set("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: ttlSeconds,
+    });
+    return { success: true, role };
+  } catch (err) {
+    console.error("Demo login error:", err);
+    return { error: "Could not start the demo. Please try again." };
   }
 }
 
