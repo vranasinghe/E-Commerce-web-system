@@ -11,8 +11,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // ── 2. Protect customer account pages ───────────────────────────────────
-  if (pathname.startsWith("/account")) {
+  // ── 2. Protect customer account pages and checkout ──────────────────────
+  // Orders can only be placed from a signed-in account (a real account or the
+  // demo customer), so every order shows up under that account's order history.
+  if (pathname.startsWith("/account") || pathname.startsWith("/checkout")) {
     if (!token) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("from", pathname);
@@ -50,5 +52,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account/:path*", "/admin/:path*"],
+  matcher: ["/account/:path*", "/checkout/:path*", "/admin/:path*"],
 };

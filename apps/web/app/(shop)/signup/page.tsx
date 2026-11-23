@@ -2,6 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import { signupAction } from "@/app/actions/auth";
+import { DemoLoginButtons } from "@/components/auth/DemoLoginButtons";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
@@ -177,9 +178,6 @@ function SignupForm() {
                   placeholder="Enter your staff invite code"
                   className="w-full px-4 py-3 border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-pink-400 focus:bg-white transition-all"
                 />
-                <p className="mt-1 text-xs text-gray-400">
-                  Demo code: <code className="font-mono bg-gray-100 px-1 rounded">STAFF-INVITE-2024</code>
-                </p>
               </div>
             )}
 
@@ -187,6 +185,8 @@ function SignupForm() {
               <SubmitButton />
             </div>
           </form>
+
+          <DemoLoginButtons from={from} />
 
           <div className="mt-5 text-center">
             <Link

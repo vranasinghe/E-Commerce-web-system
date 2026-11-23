@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Lets instrumentation.ts run the hourly demo-data cleanup.
+  experimental: { instrumentationHook: true },
   transpilePackages: ["@repo/ui", "@repo/database", "@repo/types"],
   images: {
     unoptimized: true,

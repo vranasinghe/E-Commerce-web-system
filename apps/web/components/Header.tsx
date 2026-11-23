@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import {
@@ -16,7 +16,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useCart } from "@/lib/cart-context";
+import { AUTH_CHANGED_EVENT, useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WishlistDrawer } from "@/components/WishlistDrawer";
@@ -69,6 +69,15 @@ const NAV = [
 export function Header() {
   const { count } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
+  // Bumped when something signs in or out without a page change (e.g. the
+  // demo button in the cart's sign-in prompt).
+  const [authTick, setAuthTick] = useState(0);
+  useEffect(() => {
+    const bump = () => setAuthTick((n) => n + 1);
+    window.addEventListener(AUTH_CHANGED_EVENT, bump);
+    return () => window.removeEventListener(AUTH_CHANGED_EVENT, bump);
+  }, []);
   const [q, setQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -79,8 +88,10 @@ export function Header() {
 
   const { count: wishlistCount } = useWishlist();
 
+  // Re-check on every page change: the header stays mounted across client-side
+  // navigation, so signing in or out elsewhere must refresh it.
   useEffect(() => {
-    fetch("/api/auth/session")
+    fetch("/api/auth/session", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.user) {
@@ -90,11 +101,12 @@ export function Header() {
         }
       })
       .catch(() => setUser(null));
-  }, []);
+  }, [pathname, authTick]);
 
   async function handleLogout() {
     await logoutAction();
     setUser(null);
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
     router.push("/");
     router.refresh();
   }

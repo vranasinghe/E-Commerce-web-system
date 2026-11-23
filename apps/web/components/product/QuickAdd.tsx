@@ -77,8 +77,8 @@ export function QuickAdd({ product }: { product: QuickAddProduct }) {
     );
   }
 
-  function addVariant(v: QuickAddVariant) {
-    add({
+  async function addVariant(v: QuickAddVariant) {
+    const ok = await add({
       productId: product.id!,
       variantId: v.id,
       slug: product.slug,
@@ -89,6 +89,7 @@ export function QuickAdd({ product }: { product: QuickAddProduct }) {
       price: toNumber(v.price),
       quantity: 1,
     });
+    if (!ok) return; // signed out: the sign-in prompt is showing
     setAddedSize(v.size);
     setTimeout(() => {
       setAddedSize(null);

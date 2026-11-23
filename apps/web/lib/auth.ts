@@ -41,13 +41,17 @@ export async function getSession() {
 }
 
 // HMAC-SHA256 JWT generation using Web Crypto (Edge-safe)
-export async function signJWT(payload: JWTPayload, secret = JWT_SECRET): Promise<string> {
+export async function signJWT(
+  payload: JWTPayload,
+  secret = JWT_SECRET,
+  ttlSeconds = 7 * 24 * 60 * 60, // 7 days by default
+): Promise<string> {
   const encoder = new TextEncoder();
   const header = { alg: "HS256", typ: "JWT" };
   const headerBase64 = base64url(JSON.stringify(header));
   const payloadBase64 = base64url(JSON.stringify({
     ...payload,
-    exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days expiration
+    exp: Math.floor(Date.now() / 1000) + ttlSeconds,
   }));
   const data = encoder.encode(`${headerBase64}.${payloadBase64}`);
   

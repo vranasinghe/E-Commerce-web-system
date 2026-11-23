@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, Prisma } from "@repo/database";
 import type { CartLine } from "@repo/types";
-import { cookies } from "next/headers";
-import { verifyJWT } from "../../../lib/auth";
+import { getSession } from "../../../lib/auth";
 import { getStripe, priceCart } from "../../../lib/stripe";
 
 export const runtime = "nodejs";
@@ -11,20 +10,35 @@ export const runtime = "nodejs";
 // Stripe PaymentIntent (test mode). Instead of trusting the browser, we fetch
 // the PaymentIntent from Stripe and check that it succeeded and that the amount
 // matches the server-computed cart total before creating the order.
+// Orders always belong to the signed-in account: the email and owner come from
+// the session, never from the request body.
 export async function POST(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Please sign in to place an order." }, { status: 401 });
+  }
+
   const body = (await req.json()) as {
-    email: string;
     lines: CartLine[];
     paymentIntentId: string;
+    address?: Partial<Record<"fullName" | "line1" | "city" | "postalCode" | "country", string>>;
   };
 
-  const { email, lines, paymentIntentId } = body;
-  if (!email || !paymentIntentId || !Array.isArray(lines) || lines.length === 0) {
-    return NextResponse.json(
-      { error: "email, lines and paymentIntentId required" },
-      { status: 400 },
-    );
+  const { lines, paymentIntentId } = body;
+  const address = {
+    fullName: body.address?.fullName?.trim() ?? "",
+    line1: body.address?.line1?.trim() ?? "",
+    city: body.address?.city?.trim() ?? "",
+    postalCode: body.address?.postalCode?.trim() ?? "",
+    country: body.address?.country?.trim() || "US",
+  };
+  if (!paymentIntentId || !Array.isArray(lines) || lines.length === 0) {
+    return NextResponse.json({ error: "lines and paymentIntentId required" }, { status: 400 });
   }
+  if (!address.fullName || !address.line1 || !address.city || !address.postalCode) {
+    return NextResponse.json({ error: "A complete shipping address is required" }, { status: 400 });
+  }
+  const email = session.email;
 
   let cart;
   try {
@@ -35,6 +49,10 @@ export async function POST(req: NextRequest) {
     }
     if (intent.amount !== cart.amountCents) {
       return NextResponse.json({ error: "payment amount mismatch" }, { status: 409 });
+    }
+    // The payment must have been started by this same account.
+    if (intent.metadata?.userId !== session.id) {
+      return NextResponse.json({ error: "payment does not belong to this account" }, { status: 403 });
     }
   } catch (err) {
     console.error("checkout verification error", err);
@@ -51,21 +69,17 @@ export async function POST(req: NextRequest) {
 
   const orderNumber = `AURA-${Date.now().toString(36).toUpperCase()}`;
 
-  const token = cookies().get("auth_token")?.value;
-  let userId: string | undefined = undefined;
-  if (token) {
-    const user = await verifyJWT(token);
-    if (user) {
-      userId = user.id;
-    }
-  }
-
   try {
+    const shippingAddress = await prisma.address.create({
+      data: { userId: session.id, ...address },
+    });
+
     const order = await prisma.order.create({
       data: {
         orderNumber,
         email,
-        userId,
+        userId: session.id,
+        shippingAddressId: shippingAddress.id,
         status: "PAID",
         stripePaymentId: paymentIntentId,
         events: { create: { status: "PAID", note: "Payment received" } },

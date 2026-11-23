@@ -2,6 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import { loginAction } from "@/app/actions/auth";
+import { DemoLoginButtons } from "@/components/auth/DemoLoginButtons";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
@@ -91,6 +92,14 @@ function LoginForm() {
             One portal for everyone — we&apos;ll take you to the right place
           </p>
 
+          {from === "/checkout" && (
+            <div className="mb-4 rounded-xl bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 px-4 py-3 text-sm text-pink-700 dark:text-pink-300">
+              Please sign in to shop and place orders. No account yet?{" "}
+              <Link href="/signup?from=/checkout" className="font-semibold underline">Create one</Link>
+              {" "}or try the demo customer below.
+            </div>
+          )}
+
           {/* Error */}
           {state?.error && (
             <div className="mb-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-600 dark:text-red-400">
@@ -170,20 +179,7 @@ function LoginForm() {
           </p>
         </div>
 
-        {/* Demo credentials */}
-        <div className="mt-4 rounded-xl bg-white/70 dark:bg-gray-900/70 border border-gray-100 dark:border-gray-800 p-4 backdrop-blur-sm">
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">🔑 Demo Credentials</p>
-          <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
-            <div className="flex justify-between">
-              <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-pink-400" /> Admin</span>
-              <code className="font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-[10px]">admin@store.dev / admin123</code>
-            </div>
-            <div className="flex justify-between">
-              <span className="flex items-center gap-1"><ShoppingBag className="w-3 h-3 text-pink-400" /> Customer</span>
-              <code className="font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-[10px]">shopper@store.dev / shop123</code>
-            </div>
-          </div>
-        </div>
+        <DemoLoginButtons from={from} />
       </div>
     </div>
   );

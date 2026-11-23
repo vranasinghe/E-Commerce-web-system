@@ -24,7 +24,7 @@ export const TRYON_TIPS: Record<TryOnGarmentType, string> = {
     "Use a clear, front-facing, full-length photo that shows your legs. Wear bottoms of a similar length to this item, because the result follows the length of what you are wearing.",
 };
 
-const img = (slug: string) => `/images/products/${slug}.webp`;
+const img = (slug: string) => `https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/products/${slug}.webp`;
 
 export const TRYON_GARMENTS: Record<string, TryOnGarment> = {
   // Tops

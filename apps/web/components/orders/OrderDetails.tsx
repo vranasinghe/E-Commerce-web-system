@@ -1,4 +1,4 @@
-import { Check, ExternalLink, Package } from "lucide-react";
+import { Check, ExternalLink, MapPin, Package } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import {
   STATUS_COLORS,
@@ -15,8 +15,27 @@ function fmtDate(iso: string, withTime = false) {
     : d.toLocaleDateString(undefined, { dateStyle: "medium" });
 }
 
-/** Full tracking view for one order: status, progress timeline, shipment info, items. */
-export function OrderDetails({ order }: { order: TrackedOrder }) {
+export interface ShippingAddressView {
+  fullName: string;
+  line1: string;
+  line2?: string | null;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+/**
+ * Full tracking view for one order: status, progress timeline, shipment info, items.
+ * The shipping address is only passed in on the signed-in account view, never on
+ * the public order-number lookup.
+ */
+export function OrderDetails({
+  order,
+  shippingAddress,
+}: {
+  order: TrackedOrder;
+  shippingAddress?: ShippingAddressView | null;
+}) {
   const exception = order.status === "CANCELLED" || order.status === "RETURNED";
   const currentIdx = TRACK_STEPS.indexOf(order.status);
   const trackUrl = carrierTrackingUrl(order.carrier, order.trackingNumber);
@@ -111,6 +130,22 @@ export function OrderDetails({ order }: { order: TrackedOrder }) {
               Track with {order.carrier} <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
+        </div>
+      )}
+
+      {shippingAddress && (
+        <div className="rounded-xl border border-neutral-200 p-4 text-sm">
+          <p className="flex items-center gap-2 font-medium">
+            <MapPin className="h-4 w-4" /> Shipping to
+          </p>
+          <address className="mt-2 not-italic text-neutral-600">
+            {shippingAddress.fullName}
+            <br />
+            {shippingAddress.line1}
+            {shippingAddress.line2 ? `, ${shippingAddress.line2}` : ""}
+            <br />
+            {shippingAddress.city} {shippingAddress.postalCode}, {shippingAddress.country}
+          </address>
         </div>
       )}
 

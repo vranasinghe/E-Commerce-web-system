@@ -11,7 +11,7 @@ export function ProductGallery({
   images: string[];
   alt: string;
 }) {
-  const safe = images.length ? images : ["/images/products/placeholder.svg"];
+  const safe = images.length ? images : ["https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/products/placeholder__svg.svg"];
   const [active, setActive] = useState(0);
   const [thumbStart, setThumbStart] = useState(0);
 
@@ -53,7 +53,7 @@ export function ProductGallery({
         <div className="flex flex-col gap-2 flex-1 w-full overflow-hidden">
           {visibleThumbs.map((src, i) => {
             const realIndex = thumbStart + i;
-            const thumbSrc = src || "/images/products/placeholder.svg";
+            const thumbSrc = src || "https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/products/placeholder__svg.svg";
             return (
               <button
                 key={thumbSrc + realIndex}
@@ -97,7 +97,7 @@ export function ProductGallery({
       {/* Right: large main image */}
       <div className="relative flex-1 rounded-xl overflow-hidden bg-gray-50">
         <Image
-          src={safe[active] ?? "/images/products/placeholder.svg"}
+          src={safe[active] ?? "https://res.cloudinary.com/dl2bc5pwj/image/upload/ecommerce/images/products/placeholder__svg.svg"}
           alt={alt}
           fill
           className="object-contain"

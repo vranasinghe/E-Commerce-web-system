@@ -16,14 +16,14 @@ export default async function OrderDetailPage({
   if (!session) {
     return (
       <div className="mt-12 text-center text-red-600 font-medium">
-        Please log in to see this order.
+        Please sign in to see this order.
       </div>
     );
   }
 
   const order = await prisma.order.findUnique({
     where: { orderNumber: params.orderNumber },
-    include: trackedOrderInclude,
+    include: { ...trackedOrderInclude, shippingAddress: true },
   });
 
   const isStaff = session.role === "ADMIN" || session.role === "STAFF";
@@ -36,7 +36,7 @@ export default async function OrderDetailPage({
         ← All orders
       </Link>
       <div className="mt-4">
-        <OrderDetails order={toTrackedOrder(order)} />
+        <OrderDetails order={toTrackedOrder(order)} shippingAddress={order.shippingAddress} />
       </div>
     </div>
   );
