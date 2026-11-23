@@ -6,8 +6,8 @@ import { Loader2, ShieldCheck, ShoppingBag } from "lucide-react";
 import { demoLoginAction, demoLoginEnabledAction } from "@/app/actions/auth";
 
 /**
- * One-click demo sign-in. Each click creates a temporary account whose data is
- * deleted after 24 hours. Renders nothing when demo login is switched off.
+ * One-click demo sign-in to the two fixed, shared demo accounts (customer and
+ * admin). Renders nothing when demo login is switched off.
  */
 export function DemoLoginButtons({ from }: { from?: string | null }) {
   const router = useRouter();
@@ -81,8 +81,9 @@ export function DemoLoginButtons({ from }: { from?: string | null }) {
       </div>
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
       <p className="mt-3 text-[11px] text-gray-400">
-        Creates a temporary account. It and everything you do with it (orders,
-        address, cart) is deleted after 24 hours.
+        Shared demo accounts: their name and password can&apos;t be changed, and
+        everything you do with them (orders, cart, wishlist, address) is deleted
+        within 24 hours.
       </p>
     </div>
   );
