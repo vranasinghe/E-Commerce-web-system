@@ -138,7 +138,7 @@ export async function signupAction(_prevState: unknown, formData: FormData) {
 // One click signs the visitor in to one of the two fixed, shared demo accounts.
 // They have no password (the login form cannot open them) and the database
 // refuses any change to their email, name, password or role. The session lasts
-// 24h and the accounts' old orders and chats are cleared after 24h.
+// 24h and everything the accounts own is wiped every 24h.
 export async function demoLoginEnabledAction(): Promise<boolean> {
   return isDemoLoginEnabled();
 }
@@ -150,7 +150,7 @@ export async function demoLoginAction(
   if (role !== "CUSTOMER" && role !== "ADMIN") return { error: "Unknown demo account." };
 
   try {
-    // Housekeeping: clear out demo data that has passed 24 hours.
+    // Housekeeping: reset demo data whose 24-hour window has ended.
     await purgeExpiredDemoData().catch((err) => console.error("demo purge failed", err));
 
     const user = await ensureDemoAccount(role);

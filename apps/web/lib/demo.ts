@@ -1,7 +1,8 @@
 import { prisma } from "@repo/database";
 
 // The demo site has exactly two shared accounts, opened by the "Try the demo"
-// buttons. They have no password, so the login form can never sign in to them,
+// buttons. Everything they own is wiped every 24 hours (see purgeExpiredDemoData).
+// They have no password, so the login form can never sign in to them,
 // and a database trigger (see the protect_demo_accounts migration) refuses any
 // change to their email, name, password or role, and any deletion.
 export const DEMO_EMAIL_DOMAIN = "demo.aura.test";
@@ -48,19 +49,36 @@ export async function ensureDemoAccount(role: DemoRole) {
 }
 
 /**
- * Housekeeping for demo data older than 24 hours. The two fixed accounts are
- * kept, but their old orders (stock is put back) and chat history are removed.
- * Leftover one-off demo accounts from the earlier temporary-account design are
- * deleted along with all their data. Returns how many such accounts were removed.
+ * Housekeeping for demo data. Each fixed demo account is reset on a rolling
+ * 24-hour window: once 24 hours have passed since its last reset, everything it
+ * owns is deleted (orders, with stock put back, plus addresses, cart, wishlist,
+ * reviews, size profile and chat history) and a new window starts. The account
+ * itself is kept. The window start is stored in the account's updatedAt, which
+ * the protection trigger leaves alone. Leftover one-off demo accounts from the
+ * earlier temporary-account design are deleted outright once a day old.
+ * Safe to call often; returns how many accounts were reset or removed.
  */
 export async function purgeExpiredDemoData(): Promise<number> {
   const cutoff = new Date(Date.now() - DEMO_TTL_MS);
+  let affected = 0;
 
   const fixed = await prisma.user.findMany({
-    where: { email: { in: PROTECTED_EMAILS } },
-    select: { id: true },
+    where: { email: { in: PROTECTED_EMAILS }, updatedAt: { lt: cutoff } },
+    select: { id: true, updatedAt: true },
   });
-  const fixedIds = fixed.map((u) => u.id);
+  for (const account of fixed) {
+    const reset = await prisma.$transaction(async (tx) => {
+      // Claim this window so two requests at once don't both wipe the data.
+      const claimed = await tx.user.updateMany({
+        where: { id: account.id, updatedAt: account.updatedAt },
+        data: { updatedAt: new Date() },
+      });
+      if (claimed.count === 0) return false;
+      await wipeUserData(tx, [account.id]);
+      return true;
+    });
+    if (reset) affected += 1;
+  }
 
   const legacy = await prisma.user.findMany({
     where: {
@@ -69,42 +87,40 @@ export async function purgeExpiredDemoData(): Promise<number> {
     },
     select: { id: true },
   });
-  const legacyIds = legacy.map((u) => u.id);
+  if (legacy.length > 0) {
+    const ids = legacy.map((u) => u.id);
+    await prisma.$transaction(async (tx) => {
+      await wipeUserData(tx, ids);
+      await tx.user.deleteMany({ where: { id: { in: ids } } });
+    });
+    affected += legacy.length;
+  }
 
-  const orders = await prisma.order.findMany({
-    where: {
-      OR: [
-        { userId: { in: legacyIds } },
-        { userId: { in: fixedIds }, createdAt: { lt: cutoff } },
-      ],
-    },
+  return affected;
+}
+
+type Tx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
+/** Deletes everything the given users own, keeping the users themselves. */
+async function wipeUserData(tx: Tx, userIds: string[]) {
+  const orders = await tx.order.findMany({
+    where: { userId: { in: userIds } },
     select: { id: true, items: { select: { variantId: true, quantity: true } } },
   });
-
-  if (orders.length === 0 && legacyIds.length === 0 && fixedIds.length === 0) return 0;
-
-  await prisma.$transaction([
-    // Checkout takes stock off the variant, so give it back.
-    ...orders.flatMap((o) =>
-      o.items.map((i) =>
-        prisma.productVariant.updateMany({
-          where: { id: i.variantId },
-          data: { stock: { increment: i.quantity } },
-        }),
-      ),
-    ),
-    prisma.order.deleteMany({ where: { id: { in: orders.map((o) => o.id) } } }),
-    prisma.chatSession.deleteMany({
-      where: {
-        OR: [
-          { userId: { in: legacyIds } },
-          { userId: { in: fixedIds }, createdAt: { lt: cutoff } },
-        ],
-      },
-    }),
-    // Cascades to addresses, cart, wishlist, reviews and the size profile.
-    prisma.user.deleteMany({ where: { id: { in: legacyIds } } }),
-  ]);
-
-  return legacyIds.length;
+  // Checkout takes stock off the variant, so give it back.
+  for (const o of orders) {
+    for (const i of o.items) {
+      await tx.productVariant.updateMany({
+        where: { id: i.variantId },
+        data: { stock: { increment: i.quantity } },
+      });
+    }
+  }
+  await tx.order.deleteMany({ where: { id: { in: orders.map((o) => o.id) } } });
+  await tx.chatSession.deleteMany({ where: { userId: { in: userIds } } });
+  await tx.review.deleteMany({ where: { userId: { in: userIds } } });
+  await tx.cart.deleteMany({ where: { userId: { in: userIds } } });
+  await tx.wishlist.deleteMany({ where: { userId: { in: userIds } } });
+  await tx.userSizeProfile.deleteMany({ where: { userId: { in: userIds } } });
+  await tx.address.deleteMany({ where: { userId: { in: userIds } } });
 }

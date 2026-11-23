@@ -82,7 +82,8 @@ export function DemoLoginButtons({ from }: { from?: string | null }) {
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
       <p className="mt-3 text-[11px] text-gray-400">
         Shared demo accounts: their name and password can&apos;t be changed, and
-        their orders and chats are cleared after 24 hours.
+        everything you do with them (orders, cart, wishlist, address) is deleted
+        within 24 hours.
       </p>
     </div>
   );
