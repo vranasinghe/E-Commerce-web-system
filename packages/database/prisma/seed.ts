@@ -71,7 +71,10 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.coupon.deleteMany();
-  await prisma.user.deleteMany();
+  // The two shared demo accounts are protected by a database trigger and must survive a reseed.
+  await prisma.user.deleteMany({
+    where: { email: { notIn: ["demo.customer@demo.aura.test", "demo.admin@demo.aura.test"] } },
+  });
 
   // Users
   const admin = await prisma.user.create({
